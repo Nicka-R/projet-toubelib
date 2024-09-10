@@ -14,7 +14,7 @@ class RendezVousDTO extends DTO
     {
         $this->id = $rendezVous->getId();
         $this->praticienId = $rendezVous->getPraticienId();
-        $this->dateTime = $rendezVous->getDateTime();
+        $this->dateTime = $rendezVous->getDateTime();       // faire un filtre pour que la date soit superieur à la date actuelle
         $this->praticien = $praticien;
     }
 }
