@@ -27,6 +27,12 @@ class Praticien extends Entity
         $this->specialite = $specialite;
     }
 
+    public function getSpecialite()
+    {
+        return $this->specialite;
+    }
+
+
     public function toDTO(): PraticienDTO
     {
         return new PraticienDTO($this);
