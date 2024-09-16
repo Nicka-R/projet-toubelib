@@ -3,7 +3,7 @@ namespace toubeelib\core\services\rdv;
 
 use toubeelib\core\dto\RendezVousDTO;
 
-interface ServiceRendezVousInterface
+interface ServiceRdvInterface
 {
     /**
      * fonction qui affiche les détails d'un rendez-vous à l'aide de son id
