@@ -37,16 +37,7 @@ class ServiceRdv implements ServiceRdvInterface
     {
         try {
 
-            $praticienDTO = $this->servicePraticien->getPraticienById($rendezVousDTO->getPraticienID());;
-
-            // $specialite = $this->servicePraticien->getSpecialiteById($rendezVousDTO->getSpecialiteLabel());
-            // if (!$praticien->hasSpecialite($specialite)) {
-            //     throw new ServiceRendezVousInvalidDataException('La spécialité indiquée ne fait pas partie des spécialités du praticien');
-            // }
-
-            // if (!$this->rdvRepository->isPraticienAvailable($rendezVousDTO->getPraticienID(), $rendezVousDTO->getDate())) {
-            //     throw new ServiceRendezVousInvalidDataException('Le praticien n\'est pas disponible à la date et à l\'heure demandées');
-            // }
+            $praticienDTO = $this->servicePraticien->getPraticienById($rendezVousDTO->getPraticienID());
 
             $rendezVous = new RendezVous(
                 $rendezVousDTO->getPraticienID(),
@@ -56,7 +47,6 @@ class ServiceRdv implements ServiceRdvInterface
                 // $rendezVousDTO->getType(),
                 // $rendezVousDTO->isNewPatient()
             );
-            // $rendezVous->setSpecialite($specialite);
             $this->rdvRepository->save($rendezVous);
 
             return new RendezVousDTO($rendezVous, $praticienDTO);
