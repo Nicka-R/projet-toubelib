@@ -4,6 +4,8 @@ namespace toubeelib\core\dto;
 
 use toubeelib\core\dto\DTO;
 
+use toubeelib\core\domain\entities\praticien\Specialite;
+
 class SpecialiteDTO extends DTO
 {
     protected string $ID;
@@ -15,5 +17,11 @@ class SpecialiteDTO extends DTO
         $this->ID = $ID;
         $this->label = $label;
         $this->description = $description;
+    }
+
+    public function toEntity(): Specialite
+    {
+        $s = new Specialite($this->ID, $this->label, $this->description);
+        return $s;
     }
 }
