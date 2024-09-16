@@ -29,5 +29,11 @@ class ArrayRdvRepository implements RdvRepositoryInterface
         }
         return $this->rdvs[$id];
     }
+
+    public function save(RendezVous $rdv): RendezVous
+    {
+        $this->rdvs[$rdv->getID()] = $rdv;
+        return $rdv;
+    }
   
 }
