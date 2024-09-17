@@ -13,19 +13,20 @@ class RDVDTO extends DTO
     protected bool $etatPatient; 
     protected bool $status; 
     protected string $creneau;
-    protected string $praticien;
-    protected string $specialite;
+    protected string $praticien_nom;
+    protected string $specialite_label;
 
     public function __construct(RDV $r)
     {
         $this->ID = $r->getID();
         $this->type = $r->type;
+        $this->praticien_nom = $r->praticien->nom;
+        $this->specialite_label = $r->specialite->label;
         $this->etatConsult= $r->etatConsult;
         $this->etatPatient = $r->etatPatient;
         $this->status = $r->status;
         $this->creneau = $r->creneau;
-        $this->praticien = $r->idPraticien;
-        $this->specialite = $r->idSpecialite;
+        
     }
 
 

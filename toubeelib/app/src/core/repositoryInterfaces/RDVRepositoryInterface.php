@@ -8,5 +8,6 @@ interface RDVRepositoryInterface
 {
 
     public function getRDVById(string $id): RDV;
+    public function save(RDV $rdv): string;
 
 }
