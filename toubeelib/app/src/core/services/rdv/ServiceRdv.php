@@ -38,7 +38,6 @@ class ServiceRdv implements ServiceRdvInterface
         try {
 
             $praticienDTO = $this->servicePraticien->getPraticienById($rendezVousDTO->getPraticienID());
-            // Vérifier si la spécialité existe
             $specialiteDTO = $this->getSpecialiteById($rendezVousDTO->getSpecialiteID());
             if (!$specialiteDTO) {
                 throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
@@ -48,11 +47,11 @@ class ServiceRdv implements ServiceRdvInterface
                 $rendezVousDTO->getPraticienID(),
                 $rendezVousDTO->getPatientID(),
                 $rendezVousDTO->getSpecialiteID(),
-                $rendezVousDTO->getDate(),
-                // $rendezVousDTO->getType(),
-                // $rendezVousDTO->isNewPatient()
+                $rendezVousDTO->getDate()
             );
-            
+            $rendezVous->setType($rendezVousDTO->getType());
+            $rendezVous->setNewPatient($rendezVousDTO->isNewPatient());
+
             $rendezVous->setSpecialite($specialiteDTO->toEntity());
             $this->rdvRepository->save($rendezVous);
 
@@ -63,6 +62,9 @@ class ServiceRdv implements ServiceRdvInterface
             throw new ServiceRendezVousInvalidDataException('Invalid data provided');
         }
     }
+
+    
+
 
     /** récupérer la spécialité par son id
      * @param string $id

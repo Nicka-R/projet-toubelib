@@ -23,10 +23,9 @@ class RendezVousDTO
         $this->patientID = $rendezVous->getPatientID();
         $this->specialiteID = $rendezVous->getSpecialiteID();
         $this->date = $rendezVous->getDate();
-        // $this->type = $rendezVous->getType();
-        // $this->newPatient = $rendezVous->isNewPatient();
-        // $this->status = $rendezVous->getStatus();
-        // $this->specialiteLabel = $rendezVous->getSpecialiteID();
+        $this->status = $rendezVous->getStatus();
+        $this->type = $rendezVous->getType();
+        $this->newPatient = $rendezVous->isNewPatient();
         $this->specialiteLabel = $rendezVous->getSpecialite() ? $rendezVous->getSpecialite()->getLabel() : 'Pas de Specialite';
     }
 
@@ -46,19 +45,20 @@ class RendezVousDTO
         return $this->date;
     }
 
-    // public function isNewPatient(): bool
-    // { 
-    //     return $this->newPatient;
-    // }
-
-    // public function getStatus(): string
-    // {
-    //     return $this->status; 
-    // }
     public function getSpecialiteID(): string 
     { 
         return $this->specialiteID;
     } 
+
+    public function getType(): bool 
+    { 
+        return $this->type; 
+    }
+
+    public function isNewPatient(): bool 
+    { 
+        return $this->newPatient; 
+    }
 
     public function setSpecialite(Specialite $spe): void
     {
@@ -68,9 +68,9 @@ class RendezVousDTO
     public function toEntity(): RendezVous
     {
         $rdv = new RendezVous($this->praticienID, $this->patientID, $this->specialiteLabel, $this->date);
-        // $rdv->setType($this->type);
-        // $rdv->setNewPatient($this->newPatient);
-        // $rdv->setStatus($this->status);
+        $rdv->setType($this->type);
+        $rdv->setNewPatient($this->newPatient);
+        $rdv->setStatus($this->status);
         return $rdv;
     }
 }
