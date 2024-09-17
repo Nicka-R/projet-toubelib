@@ -13,6 +13,7 @@ class RendezVous extends Entity
     protected bool $newPatient; // true si le patient est nouveau, false sinon
     protected string $status; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
     protected string $specialiteID;
+    protected ?Specialite $specialite = null;
 
     public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date) // bool $type, bool $newPatient)
     {
@@ -53,9 +54,14 @@ class RendezVous extends Entity
         return $this->patientID;
     }
 
-    public function getSpecialite(): string
+    public function getSpecialiteID(): string
     {
         return $this->specialiteID;
+    }
+
+    public function getSpecialite(): ?Specialite
+    {
+        return $this->specialite;
     }
 
     public function getDate(): \DateTimeImmutable

@@ -8,9 +8,9 @@ $serviceRdv = new \toubeelib\core\services\rdv\ServiceRdv(
 
 
 $rdv = $serviceRdv->getRendezVousById('r1');
-$speDTO = $serviceRdv->getSpecialiteById('A');
-$spe = $speDTO->toEntity();
-$rdv->setSpecialite($spe);
+// $speDTO = $serviceRdv->getSpecialiteById('A');
+// $spe = $speDTO->toEntity();
+// $rdv->setSpecialite($spe);
 // print_r($rdv);
 
 // Exemple de création d'un objet RendezVousDTO(RendezVous $rendezVous, PraticienDTO $praticien) car creerRendezVous(RendezVousDTO $rendezVousDTO)

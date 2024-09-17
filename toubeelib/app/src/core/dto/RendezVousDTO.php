@@ -14,19 +14,20 @@ class RendezVousDTO
     private bool $type;
     private bool $newPatient;
     private string $status;
-    private ?string $specialiteID;
+    private string $specialiteID;
+    private string $specialiteLabel;
 
     public function __construct(RendezVous $rendezVous, PraticienDTO $praticien)
     {
         $this->praticienID = $rendezVous->getPraticienID();
         $this->patientID = $rendezVous->getPatientID();
-        $this->specialiteID = $rendezVous->getSpecialite();
+        $this->specialiteID = $rendezVous->getSpecialiteID();
         $this->date = $rendezVous->getDate();
         // $this->type = $rendezVous->getType();
         // $this->newPatient = $rendezVous->isNewPatient();
         // $this->status = $rendezVous->getStatus();
-        
-        $this->specialiteLabel = $rendezVous->getSpecialite();
+        // $this->specialiteLabel = $rendezVous->getSpecialiteID();
+        $this->specialiteLabel = $rendezVous->getSpecialite() ? $rendezVous->getSpecialite()->getLabel() : 'Pas de Specialite';
     }
 
     /*

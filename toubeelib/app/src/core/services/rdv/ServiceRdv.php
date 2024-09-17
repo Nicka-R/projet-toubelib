@@ -38,6 +38,11 @@ class ServiceRdv implements ServiceRdvInterface
         try {
 
             $praticienDTO = $this->servicePraticien->getPraticienById($rendezVousDTO->getPraticienID());
+            // Vérifier si la spécialité existe
+            $specialiteDTO = $this->getSpecialiteById($rendezVousDTO->getSpecialiteID());
+            if (!$specialiteDTO) {
+                throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
+            }
 
             $rendezVous = new RendezVous(
                 $rendezVousDTO->getPraticienID(),
@@ -47,9 +52,13 @@ class ServiceRdv implements ServiceRdvInterface
                 // $rendezVousDTO->getType(),
                 // $rendezVousDTO->isNewPatient()
             );
+            
+            $rendezVous->setSpecialite($specialiteDTO->toEntity());
             $this->rdvRepository->save($rendezVous);
 
             return new RendezVousDTO($rendezVous, $praticienDTO);
+        }catch(ServiceRendezVousInvalidDataException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid specialite');
         } catch (RepositoryEntityNotFoundException $e) {
             throw new ServiceRendezVousInvalidDataException('Invalid data provided');
         }
