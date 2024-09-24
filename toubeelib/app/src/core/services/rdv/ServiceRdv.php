@@ -9,6 +9,7 @@ use toubeelib\core\services\praticien\ServicePraticienInterface;
 use toubeelib\core\domain\entities\rdv\RendezVous;
 use toubeelib\core\dto\SpecialiteDTO;
 use toubeelib\core\domain\entities\praticien\Specialite;
+use toubeelib\core\dto\InputRdvDTO;
 use toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException;
 
 class ServiceRdv implements ServiceRdvInterface
@@ -33,24 +34,24 @@ class ServiceRdv implements ServiceRdvInterface
         }
     }
 
-    public function creerRendezVous(RendezVousDTO $rendezVousDTO): RendezVousDTO
+    public function creerRendezVous(InputRdvDTO $inputRDV): RendezVousDTO
     {
         try {
 
-            $praticienDTO = $this->servicePraticien->getPraticienById($rendezVousDTO->getPraticienID());
-            $specialiteDTO = $this->getSpecialiteById($rendezVousDTO->getSpecialiteID());
+            $praticienDTO = $this->servicePraticien->getPraticienById($inputRDV->praticien_id);
+            $specialiteDTO = $this->getSpecialiteById($inputRDV->specialite_id);
             if (!$specialiteDTO) {
                 throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
             }
 
             $rendezVous = new RendezVous(
-                $rendezVousDTO->getPraticienID(),
-                $rendezVousDTO->getPatientID(),
-                $rendezVousDTO->getSpecialiteID(),
-                $rendezVousDTO->getDate()
+                $inputRDV->praticien_id,
+                $inputRDV->patient_id,
+                $inputRDV->specialite_id,
+                $inputRDV->date
             );
-            $rendezVous->setType($rendezVousDTO->getType());
-            $rendezVous->setNewPatient($rendezVousDTO->isNewPatient());
+            $rendezVous->setType($inputRDV->type);
+            $rendezVous->setNewPatient($inputRDV->newPatient);
 
             $rendezVous->setSpecialite($specialiteDTO->toEntity());
             $this->rdvRepository->save($rendezVous);
