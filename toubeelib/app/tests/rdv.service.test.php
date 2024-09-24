@@ -6,27 +6,61 @@ $serviceRdv = new \toubeelib\core\services\rdv\ServiceRdv(
     new \toubeelib\core\services\praticien\ServicePraticien(new \toubeelib\infrastructure\repositories\ArrayPraticienRepository())
 );
 
-// créer un rendez vous à partir d'un rendez vous existant
-$rdv = $serviceRdv->getRendezVousById('r1');
-$rdvDTO = $serviceRdv->creerRendezVous($rdv);
-print_r($rdvDTO);
+//créer un rdv à aprtir d'un inputRdvDTO
+try {
 
-// créer un rendez vous entièrement 
+    // cas 1 : praticien disponible
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p1', // praticien_id
+        'pa1', // patient_id
+        'A', // specialite_id
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-02 09:00'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
+    $rdv1 = $serviceRdv->creerRendezVous($inputRdv);
+    print_r($rdv1);
 
-$praticien = new \toubeelib\core\domain\entities\praticien\Praticien('Doc', 'teur', 'Nancy', '0123456789');
-$praticien->setID('p2');
-$rtest = new \toubeelib\core\domain\entities\rdv\RendezVous('p2', 'pa2', 'E', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-09-02 09:00') );
-$rtest->setID('rtest');
-$rtest->setNewPatient(true);
-$rtest->setType(true);
-print_r($rtest);
-$rdv1 = $serviceRdv->creerRendezVous(new \toubeelib\core\dto\RendezVousDTO($rtest, new \toubeelib\core\dto\PraticienDTO($praticien)));
+    // cas 2 : praticien non disponible
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p3', // praticien_id
+        'pa1', // patient_id
+        'C', // specialite_id
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-09-02 09:00'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
 
-print_r($rdv1);
+    $rdv2 = $serviceRdv->creerRendezVous($inputRdv);
+    print_r($rdv2);
+    $rdv3 = $serviceRdv->creerRendezVous($inputRdv);
 
-// update du type de rendez vous
-$rtest->setType(false);
-$rdv2 = $serviceRdv->creerRendezVous(new \toubeelib\core\dto\RendezVousDTO($rtest, new \toubeelib\core\dto\PraticienDTO($praticien)));
-print_r($rdv2);
+    // cas 1 : praticien disponible, specialite qui ne correspond pas à celle du praticien
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p3', // praticien_id
+        'pa1', // patient_id
+        'A', // specialite_id qui ne correspond pas à celle du praticien
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-09-02 09:00'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
+    $dispo = $serviceRdv->isPraticienAvailable($inputRdv->praticien_id, $inputRdv->date);
+    $check = $serviceRdv->checkPraticienSpecialites($inputRdv->praticien_id, $inputRdv->specialite_id);
+    $rdv1 = $serviceRdv->creerRendezVous($inputRdv);
+    print_r($rdv1);
 
 
+
+    
+    
+} catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
+    echo $e->getMessage();
+} catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {
+    echo $e->getMessage();
+}

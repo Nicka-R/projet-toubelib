@@ -62,4 +62,23 @@ class ServicePraticien implements ServicePraticienInterface
             throw new ServicePraticienInvalidDataException('Invalid Specialite ID');
         }
     }
+
+    /**
+     * fonction qui permet de récupérer les spécialités d'un praticien
+     * @param string $id l'ID du praticien
+     * @throws ServicePraticienInvalidDataException si l'ID n'est pas valide
+     * @return array la spécualité du praticien
+     */
+    public function getSpecialitesByPraticienId(string $id): array
+    {
+        try {
+            $praticien = $this->praticienRepository->getPraticienById($id);
+            $specialite = $praticien->getSpecialite();
+            return [$specialite->toDTO()];
+            
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServicePraticienInvalidDataException('Invalid Praticien ID');
+        }
+    }
+    
 }

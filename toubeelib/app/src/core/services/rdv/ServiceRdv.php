@@ -34,14 +34,31 @@ class ServiceRdv implements ServiceRdvInterface
         }
     }
 
+    /** 
+     * fonction permettant de créer un rendez-vous avec les données fournies dans le DTO
+     * @param InputRdvDTO $inputRDV les données du rendez-vous
+     * @throws ServiceRendezVousInvalidDataException si les données du rendez-vous ne sont pas valides
+     * @return RendezVousDTO
+     */
+
     public function creerRendezVous(InputRdvDTO $inputRDV): RendezVousDTO
     {
         try {
 
             $praticienDTO = $this->servicePraticien->getPraticienById($inputRDV->praticien_id);
+            //vérifier que le praticien soit disponible
+            if (!$this->isPraticienAvailable($inputRDV->praticien_id, $inputRDV->date)) {
+                throw new ServiceRendezVousInvalidDataException('Praticien non disponible');
+            }
             $specialiteDTO = $this->getSpecialiteById($inputRDV->specialite_id);
             if (!$specialiteDTO) {
                 throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
+            }
+
+            //vérifier que les spécialités du praticien correspondent à celles du rendez-vous
+            // echo "specialite du rendez-vous : ".$inputRDV->specialite_id."\n";
+            if (!$this->checkPraticienSpecialites($inputRDV->praticien_id, $inputRDV->specialite_id)) {
+                throw new ServiceRendezVousInvalidDataException('Praticien ne possède pas la spécialité requise');
             }
 
             $rendezVous = new RendezVous(
@@ -58,13 +75,11 @@ class ServiceRdv implements ServiceRdvInterface
 
             return new RendezVousDTO($rendezVous, $praticienDTO);
         }catch(ServiceRendezVousInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid specialite');
+            throw new ServiceRendezVousInvalidDataException('Création de rendez-vous impossible');
         } catch (RepositoryEntityNotFoundException $e) {
             throw new ServiceRendezVousInvalidDataException('Invalid data provided');
         }
     }
-
-    
 
 
     /** récupérer la spécialité par son id
@@ -80,4 +95,40 @@ class ServiceRdv implements ServiceRdvInterface
             throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
         }
     }
+
+    /**
+     * vérifie la disponibilité d'un praticien à une date donnée
+     * @param string $praticien_id
+     * @param \DateTimeImmutable $date
+     * @return bool
+     */
+    public function isPraticienAvailable(string $praticien_id, \DateTimeImmutable $date): bool
+    {
+        $rendezVous = $this->rdvRepository->getRendezVousByPraticienAndDate($praticien_id, $date);
+        
+        return empty($rendezVous);
+    }
+
+    /**
+     * fonction qui permet de vérifier que les spécialités du praticien correspondent à celles du rendez-vous
+     * @param string $praticienId l'ID du praticien
+     * @param array $requiredSpecialites la liste des spécialités requises pour le rendez-vous
+     * @throws ServicePraticienInvalidDataException si l'ID du praticien n'est pas valide
+     * @return bool true si toutes les spécialités requises sont présentes, sinon false
+     */
+    public function checkPraticienSpecialites(string $praticienId, string $specialite): bool
+    {
+        $spes = $this->servicePraticien->getSpecialitesByPraticienId($praticienId);
+        $specialitesPraticienIds = [];
+        foreach ($spes as $spe) {
+            $specialitesPraticienIds[] = $spe->ID;
+        }
+        if($specialite === $specialitesPraticienIds[0]){
+            return true;
+        }
+        //compare les spécialités du praticien avec celles du rendez-vous
+        return false;
+
+    }
+
 }
