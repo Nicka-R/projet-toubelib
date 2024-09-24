@@ -39,7 +39,7 @@ try {
     print_r($rdv2);
     $rdv3 = $serviceRdv->creerRendezVous($inputRdv);
 
-    // cas 1 : praticien disponible, specialite qui ne correspond pas à celle du praticien
+    // cas 3 : praticien disponible, specialite qui ne correspond pas à celle du praticien
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
         'p3', // praticien_id
         'pa1', // patient_id

@@ -6,14 +6,13 @@ use toubeelib\core\domain\entities\praticien\Specialite;
 
 class RendezVous extends Entity
 {
-    const STATUS_ANNULE = 'ANNULE';
 
     protected string $praticienID;
     protected string $patientID;
     protected \DateTimeImmutable $date; 
     protected bool $type = false; // true pour les téléconsultations, false pour le présentiel
     protected bool $newPatient = false; // true si le patient est nouveau, false sinon
-    protected string $status; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
+    protected int $status; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
     protected string $specialiteID;
     protected ?Specialite $specialite = null;
 
@@ -23,7 +22,7 @@ class RendezVous extends Entity
         $this->patientID = $patient;
         $this->specialiteID = $specialiteID;
         $this->date = $date;
-        $this->status = 'EN ATTENTE';
+        $this->status = 0;
     }
 
     /*
@@ -40,6 +39,10 @@ class RendezVous extends Entity
         $this->newPatient = $newPatient;
     }
 
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
     public function setType(bool $type): void
     {
         $this->type = $type;
@@ -78,11 +81,6 @@ class RendezVous extends Entity
     public function getDate(): \DateTimeImmutable
     {
         return $this->date;
-    }
-
-    public function setStatus(string $status): void
-    {
-        $this->status = $status;
     }
     
 

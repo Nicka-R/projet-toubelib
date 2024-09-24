@@ -112,7 +112,7 @@ class ServiceRdv implements ServiceRdvInterface
     /**
      * fonction qui permet de vérifier que les spécialités du praticien correspondent à celles du rendez-vous
      * @param string $praticienId l'ID du praticien
-     * @param array $requiredSpecialites la liste des spécialités requises pour le rendez-vous
+     * @param string $specialite la liste des spécialités requises pour le rendez-vous
      * @throws ServicePraticienInvalidDataException si l'ID du praticien n'est pas valide
      * @return bool true si toutes les spécialités requises sont présentes, sinon false
      */

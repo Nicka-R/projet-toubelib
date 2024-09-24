@@ -22,7 +22,6 @@ class InputRdvDTO {
         bool $isConfirmed,
         bool $isPaid,
         
-        
     ) {
         $this->newPatient = $newPatient;
         $this->type = $type;
