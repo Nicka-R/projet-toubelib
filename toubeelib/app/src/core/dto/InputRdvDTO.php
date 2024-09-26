@@ -23,6 +23,7 @@ class InputRdvDTO {
         bool $isPaid,
         
     ) {
+        $this->validateDate($date);
         $this->newPatient = $newPatient;
         $this->type = $type;
         $this->isConfirmed = $isConfirmed;
@@ -31,5 +32,13 @@ class InputRdvDTO {
         $this->praticien_id = $praticien_id;
         $this->specialite_id = $specialite_id;
         $this->patient_id = $patient_id;
+    }
+
+    private function validateDate(\DateTimeImmutable $date): void
+    {
+        $now = new \DateTimeImmutable();
+        if ($date <= $now) {
+            throw new \Exception('La date du rendez-vous doit être supérieure à la date actuelle.');
+        }
     }
 }

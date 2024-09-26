@@ -14,7 +14,7 @@ try {
         'p1', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-02 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-10 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -28,7 +28,7 @@ try {
         'p3', // praticien_id
         'pa1', // patient_id
         'C', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-09-02 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-02 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -44,7 +44,7 @@ try {
         'p3', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id qui ne correspond pas à celle du praticien
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-11-02 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-11-15 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -60,7 +60,7 @@ try {
         'p1', // praticien_id
         'pa2', // patient_id
         'A', // specialite_id qui ne correspond pas à celle du praticien
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-05 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -78,5 +78,7 @@ try {
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
     echo $e->getMessage();
 } catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {
+    echo $e->getMessage();
+}catch(\Exception $e){
     echo $e->getMessage();
 }
