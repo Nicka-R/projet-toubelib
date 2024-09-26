@@ -184,4 +184,16 @@ class ServiceRdv implements ServiceRdvInterface
         return $dates;
     }
 
+    /**
+     * fonction qui liste les disponibilités d'un praticien à une date donnée
+     * @param string $praticien_id
+     * @param \DateTimeImmutable $date
+     * @return array tableau des disponibilités
+     * @throws ServiceRendezVousInvalidDataException si l'ID du praticien n'est pas valide
+     */
+    public function listerDisponibilitesPraticien(string $praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to): array
+    {
+        // TODO: Implement listerDisponibilitesPraticien() method.
+    }
+
 }
