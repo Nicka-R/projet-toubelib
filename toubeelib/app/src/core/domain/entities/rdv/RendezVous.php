@@ -6,15 +6,25 @@ use toubeelib\core\domain\entities\praticien\Specialite;
 
 class RendezVous extends Entity
 {
+    private const RDV_ANNULE = -1;
+    private const RDV_PREVU = 0;
+    private const RDV_HONORE = 1;
+
+    private const RDV_NON_HONORE = 2;
+    private const RDV_PAYE = 3;
+    private const RDV_TRANSMIS = 4;
+
 
     protected string $praticienID;
     protected string $patientID;
     protected \DateTimeImmutable $date; 
     protected bool $type = false; // true pour les téléconsultations, false pour le présentiel
     protected bool $newPatient = false; // true si le patient est nouveau, false sinon
-    protected int $status; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
+    protected int $status= self::RDV_PREVU; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
     protected string $specialiteID;
-    protected ?Specialite $specialite = null;
+    protected int $duree = 30; 
+
+    // protected ?Specialite $specialite = null;
 
     public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date) // bool $type, bool $newPatient)
     {
@@ -22,7 +32,7 @@ class RendezVous extends Entity
         $this->patientID = $patient;
         $this->specialiteID = $specialiteID;
         $this->date = $date;
-        $this->status = 0;
+        
     }
 
     /*

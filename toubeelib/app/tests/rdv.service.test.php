@@ -37,14 +37,14 @@ try {
 
     $rdv2 = $serviceRdv->creerRendezVous($inputRdv);
     print_r($rdv2);
-    $rdv3 = $serviceRdv->creerRendezVous($inputRdv);
+    $rdv3 = $serviceRdv->creerRendezVous($inputRdv);    
 
     // cas 3 : praticien disponible, specialite qui ne correspond pas à celle du praticien
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
         'p3', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id qui ne correspond pas à celle du praticien
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-09-02 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-11-02 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed

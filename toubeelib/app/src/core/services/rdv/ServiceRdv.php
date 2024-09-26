@@ -75,9 +75,9 @@ class ServiceRdv implements ServiceRdvInterface
 
             return new RendezVousDTO($rendezVous, $praticienDTO);
         }catch(ServiceRendezVousInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException('Création de rendez-vous impossible');
+            throw new ServiceRendezVousInvalidDataException($e->getMessage());
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid data provided');
+            throw new ServiceRendezVousInvalidDataException($e->getMessage());
         }
     }
 
