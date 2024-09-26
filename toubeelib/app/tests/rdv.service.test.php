@@ -74,6 +74,25 @@ try {
     print_r($rdv4);
     echo "status du rdv : ".$rdv4->getStatus()."\n";
     
+
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p1', // praticien_id
+        'pa1', // patient_id
+        'A', // specialite_id qui ne correspond pas à celle du praticien
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:30'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
+
+    $rdv5 = $serviceRdv->creerRendezVous($inputRdv);
+
+    //lister les rendez-vous d'un praticien à une date donnée
+    $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'));
+    foreach($rdvs as $rdv){
+        print_r($rdv);
+    }
     
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
     echo $e->getMessage();

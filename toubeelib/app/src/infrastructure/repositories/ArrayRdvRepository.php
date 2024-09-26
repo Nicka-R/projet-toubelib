@@ -46,5 +46,16 @@ class ArrayRdvRepository implements RdvRepositoryInterface
         $this->rdvs[$rdv->getID()] = $rdv;
         return $rdv;
     }
+
+    public function getRendezVousByPraticienAndDateRange(string $praticien_id, \DateTimeImmutable $dateDebut, \DateTimeImmutable $dateFin): array
+    {
+        $rdvs = [];
+        foreach ($this->rdvs as $rdv) {
+            if ($rdv->getPraticienID() === $praticien_id && $rdv->getDate() >= $dateDebut && $rdv->getDate() <= $dateFin) {
+                $rdvs[] = $rdv;
+            }
+        }
+        return $rdvs;
+    }
   
 }

@@ -15,6 +15,16 @@ use Ramsey\Uuid\Uuid;
 
 class ServiceRdv implements ServiceRdvInterface
 {
+    private const JOURS_CONSULTATION = [1, 2, 3, 4, 5];
+    private const HEURE_DEBUT_CONSULTATION_MATIN = '09:00';
+    // private const HEURE_FIN_CONSULTATION_MATIN = '12:00';
+    private const HEURE_DEBUT_CONSULTATION_APREM = '14:00';
+    // private const HEURE_FIN_CONSULTATION_APREM = '18:00';
+    private const NB_RDV_MATIN = 6;
+    private const NB_RDV_APREM = 7;
+    private const DUREE_RDV = 30;
+
+
     private RdvRepositoryInterface $rdvRepository;
     private ServicePraticienInterface $servicePraticien;
 
@@ -155,6 +165,23 @@ class ServiceRdv implements ServiceRdvInterface
         print_r($rdv);
         $this->rdvRepository->save($rdv);
 
+    }
+
+
+    /**fonction qui permet de lister les rendez-vous d'un praticien a une période donnée
+     * @param string $praticien_id
+     * @param \DateTimeImmutable $dateDebut
+     * @param \DateTimeImmutable $dateFin
+     * @return array tableau de DateTime des rendez-vous
+     */
+    public function listerRendezVousPraticien(string $praticien_id, \DateTimeImmutable $dateDebut, \DateTimeImmutable $dateFin): array
+    {
+        $rdvs = $this->rdvRepository->getRendezVousByPraticienAndDateRange($praticien_id, $dateDebut, $dateFin);
+        $dates = [];
+        foreach ($rdvs as $rdv) {
+            $dates[] = $rdv->getDate();
+        }
+        return $dates;
     }
 
 }
