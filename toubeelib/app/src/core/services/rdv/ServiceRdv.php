@@ -11,6 +11,7 @@ use toubeelib\core\dto\SpecialiteDTO;
 use toubeelib\core\domain\entities\praticien\Specialite;
 use toubeelib\core\dto\InputRdvDTO;
 use toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException;
+use Ramsey\Uuid\Uuid;
 
 class ServiceRdv implements ServiceRdvInterface
 {
@@ -61,6 +62,9 @@ class ServiceRdv implements ServiceRdvInterface
                 throw new ServiceRendezVousInvalidDataException('Praticien ne possède pas la spécialité requise');
             }
 
+            //générer un UUID pour le rendez-vous
+            $inputRDV->id = Uuid::uuid4()->toString();
+
             $rendezVous = new RendezVous(
                 $inputRDV->praticien_id,
                 $inputRDV->patient_id,
@@ -69,9 +73,12 @@ class ServiceRdv implements ServiceRdvInterface
             );
             $rendezVous->setType($inputRDV->type);
             $rendezVous->setNewPatient($inputRDV->newPatient);
+            $rendezVous->setId($inputRDV->id);
 
             $rendezVous->setSpecialite($specialiteDTO->toEntity());
             $this->rdvRepository->save($rendezVous);
+
+            // print_r($rendezVous);
 
             return new RendezVousDTO($rendezVous, $praticienDTO);
         }catch(ServiceRendezVousInvalidDataException $e){
@@ -128,6 +135,25 @@ class ServiceRdv implements ServiceRdvInterface
         }
         //compare les spécialités du praticien avec celles du rendez-vous
         return false;
+
+    }
+
+
+    /**
+     * fonction qui permet d'annuler un rendez-vous en modifiant son statut
+     * @param string $id l'ID du rendez-vous
+     * @throws ServiceRendezVousInvalidDataException si l'ID n'est pas valide
+     * @return RendezVousDTO
+     */
+    public function annulerRendezVous(string $id): void{
+        try {
+            $rdv = $this->rdvRepository->getRendezVousById($id);
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+        }
+        $rdv->annuler();
+        print_r($rdv);
+        $this->rdvRepository->save($rdv);
 
     }
 

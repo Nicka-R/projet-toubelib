@@ -3,7 +3,6 @@ namespace toubeelib\core\domain\entities\rdv;
 
 use toubeelib\core\domain\entities\Entity;
 use toubeelib\core\domain\entities\praticien\Specialite;
-
 class RendezVous extends Entity
 {
     private const RDV_ANNULE = -1;
@@ -14,7 +13,7 @@ class RendezVous extends Entity
     private const RDV_PAYE = 3;
     private const RDV_TRANSMIS = 4;
 
-
+    protected string $id;
     protected string $praticienID;
     protected string $patientID;
     protected \DateTimeImmutable $date; 
@@ -53,9 +52,20 @@ class RendezVous extends Entity
     {
         $this->status = $status;
     }
+
     public function setType(bool $type): void
     {
         $this->type = $type;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getType(): bool
@@ -93,9 +103,13 @@ class RendezVous extends Entity
         return $this->date;
     }
     
-
     public function getStatus(): string
     {
         return $this->status;
+    }
+
+    public function annuler(): void
+    {
+        $this->status = self::RDV_ANNULE;
     }
 }

@@ -8,6 +8,7 @@ use toubeelib\core\domain\entities\praticien\Specialite;
 
 class RendezVousDTO
 {
+    private string $id;
     private string $praticienID;
     private string $patientID;
     private \DateTimeImmutable $date;
@@ -19,6 +20,7 @@ class RendezVousDTO
 
     public function __construct(RendezVous $rendezVous, PraticienDTO $praticien)
     {
+        $this->id = $rendezVous->getID();
         $this->praticienID = $rendezVous->getPraticienID();
         $this->patientID = $rendezVous->getPatientID();
         $this->specialiteID = $rendezVous->getSpecialiteID();
@@ -32,6 +34,10 @@ class RendezVousDTO
     /*
      * Getters et setters
      */
+    public function getId(): string{
+        return $this->id;
+    }
+
     public function getPraticienID(): string 
     { 
         return $this->praticienID; 
@@ -50,6 +56,11 @@ class RendezVousDTO
         return $this->specialiteID;
     } 
 
+    public function getStatus(): string 
+    { 
+        return $this->status; 
+    }
+    
     public function getType(): bool 
     { 
         return $this->type; 

@@ -37,7 +37,7 @@ try {
 
     $rdv2 = $serviceRdv->creerRendezVous($inputRdv);
     print_r($rdv2);
-    $rdv3 = $serviceRdv->creerRendezVous($inputRdv);    
+    // $rdv3 = $serviceRdv->creerRendezVous($inputRdv);    
 
     // cas 3 : praticien disponible, specialite qui ne correspond pas à celle du praticien
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
@@ -52,11 +52,27 @@ try {
     );
     $dispo = $serviceRdv->isPraticienAvailable($inputRdv->praticien_id, $inputRdv->date);
     $check = $serviceRdv->checkPraticienSpecialites($inputRdv->praticien_id, $inputRdv->specialite_id);
-    $rdv1 = $serviceRdv->creerRendezVous($inputRdv);
-    print_r($rdv1);
+    // $rdv1 = $serviceRdv->creerRendezVous($inputRdv);
+    // print_r($rdv1);
 
+    // cas 4 : annuler un rendez-vous
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p1', // praticien_id
+        'pa2', // patient_id
+        'A', // specialite_id qui ne correspond pas à celle du praticien
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-05 09:00'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
 
-
+    $rdv4 = $serviceRdv->creerRendezVous($inputRdv);
+    echo "id du rdv créé : ".$rdv4->getId()."\n";
+    $serviceRdv->annulerRendezVous($rdv4->getId());
+    $rdv4 = $serviceRdv->getRendezVousById($rdv4->getId());         //on récupère le DTO du rdv annulé
+    print_r($rdv4);
+    echo "status du rdv : ".$rdv4->getStatus()."\n";
     
     
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {

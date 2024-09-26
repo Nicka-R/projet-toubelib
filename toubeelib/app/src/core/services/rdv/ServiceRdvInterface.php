@@ -2,6 +2,8 @@
 namespace toubeelib\core\services\rdv;
 
 use toubeelib\core\dto\RendezVousDTO;
+use toubeelib\core\dto\InputRdvDTO;
+use toubeelib\core\dto\SpecialiteDTO;
 
 interface ServiceRdvInterface
 {
@@ -11,4 +13,8 @@ interface ServiceRdvInterface
      * @return le rendez vous voulu
      */
     public function getRendezVousById(string $id): RendezVousDTO;
+    public function creerRendezVous(InputRdvDTO $inputRDV): RendezVousDTO;
+    public function getSpecialiteById(string $id): SpecialiteDTO;
+    public function isPraticienAvailable(string $praticien_id, \DateTimeImmutable $date): bool;
+    public function checkPraticienSpecialites(string $praticienId, string $specialite): bool;
 }
