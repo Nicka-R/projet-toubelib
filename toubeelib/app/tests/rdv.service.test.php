@@ -59,7 +59,7 @@ try {
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
         'p1', // praticien_id
         'pa2', // patient_id
-        'A', // specialite_id qui ne correspond pas à celle du praticien
+        'A', // specialite_id
         \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), // date
         true, // newPatient
         false, // type
@@ -78,7 +78,7 @@ try {
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
         'p1', // praticien_id
         'pa1', // patient_id
-        'A', // specialite_id qui ne correspond pas à celle du praticien
+        'A', // specialite_id
         \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:30'), // date
         true, // newPatient
         false, // type
@@ -88,12 +88,29 @@ try {
 
     $rdv5 = $serviceRdv->creerRendezVous($inputRdv);
 
-    //lister les rendez-vous d'un praticien à une date donnée
-    $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'));
-    foreach($rdvs as $rdv){
-        print_r($rdv);
-    }
-    
+    $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
+        'p1', // praticien_id
+        'pa2', // patient_id
+        'A', // specialite_id
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'), // date
+        true, // newPatient
+        false, // type
+        false, // isConfirmed
+        false, // isPaid
+    );
+
+    $rdv6 = $serviceRdv->creerRendezVous($inputRdv);
+
+    // lister les rendez-vous d'un praticien à une date donnée
+    // $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'));
+    // foreach($rdvs as $rdv){
+    //     print_r($rdv);
+    // }
+
+    $dispos = $serviceRdv->listerDisponibilitesPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 12:00'));
+    foreach($dispos as $dispo){
+        print_r($dispo);
+    }    
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
     echo $e->getMessage();
 } catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {

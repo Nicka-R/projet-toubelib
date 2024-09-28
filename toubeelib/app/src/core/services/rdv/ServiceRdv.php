@@ -193,7 +193,46 @@ class ServiceRdv implements ServiceRdvInterface
      */
     public function listerDisponibilitesPraticien(string $praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
-        // TODO: Implement listerDisponibilitesPraticien() method.
+        try{
+            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
+            $rdvs = $this->rdvRepository->getRendezVousByPraticienAndDateRange($praticien_id, $from, $to);
+            //liste des dispo
+            $dispos = [];
+
+            //trouver les créneaux où il n'a pas de rendez vous 
+            $date = $from;
+            while($date <= $to){
+                $jour = $date->format('N');
+                $heure = $date->format('H:i');
+    
+                // Vérifier si c'est un jour de consultation
+                if (in_array($jour, self::JOURS_CONSULTATION)) {
+                    if (($heure >= self::HEURE_DEBUT_CONSULTATION_MATIN && $heure < self::HEURE_DEBUT_CONSULTATION_APREM) ||
+                        ($heure >= self::HEURE_DEBUT_CONSULTATION_APREM && $heure < '18:00')) {
+                        // Vérifier si le créneau est libre
+                        $isFree = true;
+                        foreach ($rdvs as $rdv) {
+                            // print_r($rdv);
+                            if ($rdv->getDate() == $date) {
+                                $isFree = false;
+                                break;
+                            }
+                        }
+                        if ($isFree) {
+                            $dispos[] = $date;
+                        }
+                    }
+                }
+                
+                // Ajouter 30 minutes au créneau actuel
+                $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+            }
+
+            return $dispos;
+
+        }catch(RepositoryEntityNotFoundException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
+        }
     }
 
 }
