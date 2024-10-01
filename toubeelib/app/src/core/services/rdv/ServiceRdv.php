@@ -160,7 +160,7 @@ class ServiceRdv implements ServiceRdvInterface
             throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
         }
         $rdv->annuler();
-        print_r($rdv);
+        // print_r($rdv);
         $this->rdvRepository->save($rdv);
 
     }
@@ -204,72 +204,71 @@ class ServiceRdv implements ServiceRdvInterface
      * @return array tableau des disponibilités
      * @throws ServiceRendezVousInvalidDataException si l'ID du praticien n'est pas valide
      */
-public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
-    try {
-        $praticien = $this->servicePraticien->getPraticienById($praticien_id);
-        $rdvs = $this->rdvRepository->getRendezVousPraticien($praticien_id, $from, $to);
-        
-        // liste des dispo
-        $dispos = [];
+    public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
+        try {
+            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
+            $rdvs = $this->rdvRepository->getRendezVousPraticien($praticien_id, $from, $to);
+            
+            // liste des dispo
+            $dispos = [];
 
+            // trouver les créneaux où il n'a pas de rendez-vous 
+            $date = $from;
+            while ($date <= $to) {
+                $jour = $date->format('N');
+                $heure = $date->format('H:i');
 
-        // trouver les créneaux où il n'a pas de rendez-vous 
-        $date = $from;
-        while ($date <= $to) {
-            $jour = $date->format('N');
-            $heure = $date->format('H:i');
-
-            // Vérifier si c'est un jour de consultation
-            if (in_array($jour, self::JOURS_CONSULTATION)) {
-                // si c'est le matin on affiche les créneaux de 9h jusqu'au nombre de rdv matin
-                if ($heure == self::HEURE_DEBUT_CONSULTATION_MATIN) {
-                    $nbRdv = 0;
-                    while ($nbRdv < self::NB_RDV_MATIN) {
-                        $isFree = true;
-                        foreach ($rdvs as $rdv) {
-                            if ($rdv->getDate() == $date) {
-                                $isFree = false;
-                                break;
+                // Vérifier si c'est un jour de consultation
+                if (in_array($jour, self::JOURS_CONSULTATION)) {
+                    // si c'est le matin on affiche les créneaux de 9h jusqu'au nombre de rdv matin
+                    if ($heure == self::HEURE_DEBUT_CONSULTATION_MATIN) {
+                        $nbRdv = 0;
+                        while ($nbRdv < self::NB_RDV_MATIN) {
+                            $isFree = true;
+                            foreach ($rdvs as $rdv) {
+                                if ($rdv->getDate() == $date) {
+                                    $isFree = false;
+                                    break;
+                                }
                             }
+                            if ($isFree) {
+                                $dispos[] = $date;
+                            }
+                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                            $nbRdv++;
                         }
-                        if ($isFree) {
-                            $dispos[] = $date;
+                    }
+                    // si c'est l'après-midi on affiche les créneaux de 14h jusqu'au nombre de rdv aprem
+                    if ($heure == self::HEURE_DEBUT_CONSULTATION_APREM) {
+                        $nbRdv = 0;
+                        // on vérifie que la date soit inférieure à la date donnée
+                        while ($nbRdv < self::NB_RDV_APREM && $date <= $to) {
+                            $isFree = true;
+                            foreach ($rdvs as $rdv) {
+                                if ($rdv->getDate() == $date) {
+                                    $isFree = false;
+                                    break;
+                                }
+                            }
+                            if ($isFree) {
+                                $dispos[] = $date;
+                            }
+                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                            $nbRdv++;
                         }
-                        $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
-                        $nbRdv++;
                     }
                 }
-                // si c'est l'après-midi on affiche les créneaux de 14h jusqu'au nombre de rdv aprem
-                if ($heure == self::HEURE_DEBUT_CONSULTATION_APREM) {
-                    $nbRdv = 0;
-                    // on vérifie que la date soit inférieure à la date donnée
-                    while ($nbRdv < self::NB_RDV_APREM && $date <= $to) {
-                        $isFree = true;
-                        foreach ($rdvs as $rdv) {
-                            if ($rdv->getDate() == $date) {
-                                $isFree = false;
-                                break;
-                            }
-                        }
-                        if ($isFree) {
-                            $dispos[] = $date;
-                        }
-                        $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
-                        $nbRdv++;
-                    }
-                }
+
+                // Ajouter 30 minutes au créneau actuel
+                $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
             }
 
-            // Ajouter 30 minutes au créneau actuel
-            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+            return $dispos;
+
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
         }
-
-        return $dispos;
-
-    } catch (RepositoryEntityNotFoundException $e) {
-        throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
     }
-}
 
 }
 
