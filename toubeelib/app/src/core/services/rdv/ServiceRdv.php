@@ -17,9 +17,7 @@ class ServiceRdv implements ServiceRdvInterface
 {
     private const JOURS_CONSULTATION = [1, 2, 3, 4, 5];
     private const HEURE_DEBUT_CONSULTATION_MATIN = '09:00';
-    // private const HEURE_FIN_CONSULTATION_MATIN = '12:00';
     private const HEURE_DEBUT_CONSULTATION_APREM = '14:00';
-    // private const HEURE_FIN_CONSULTATION_APREM = '18:00';
     private const NB_RDV_MATIN = 6;
     private const NB_RDV_APREM = 7;
     private const DUREE_RDV = 30;
@@ -174,14 +172,29 @@ class ServiceRdv implements ServiceRdvInterface
      * @param \DateTimeImmutable $dateFin
      * @return array tableau de DateTime des rendez-vous
      */
-    public function listerRendezVousPraticien(string $praticien_id, \DateTimeImmutable $dateDebut, \DateTimeImmutable $dateFin): array
+    public function listerRendezVousPraticien(string $praticien_id, \DateTimeInterface $dateDebut, int $nbJours): array
     {
-        $rdvs = $this->rdvRepository->getRendezVousByPraticienAndDateRange($praticien_id, $dateDebut, $dateFin);
-        $dates = [];
-        foreach ($rdvs as $rdv) {
-            $dates[] = $rdv->getDate();
+        try{
+            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
+        }catch(ServicePraticienInvalidDataException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
         }
-        return $dates;
+        if ($nbJours < 1) {
+            throw new ServiceRendezVousInvalidDataException('Invalid number of days');
+        }
+        $premier_rdv = $dateDebut->modify('08:00');
+        $dernier_rdv = $dateDebut->modify('+'. $nbJours-1 . ' days')->modify('23:59');
+        $liste_rdv = $this->rdvRepository->getRendezVousPraticien($praticien_id, $premier_rdv, $dernier_rdv);
+        return array_map(function($rdv){
+            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
+            $rdv_dto = $rdv->toDTO($praticienDTO);
+            
+            $specialiteDTO = $this->servicePraticien->getSpecialiteById($rdv->getSpecialiteID());
+            $rdv_dto->setPraticien($praticienDTO);
+            $rdv_dto->setSpecialite($specialiteDTO);
+            return $rdv_dto;
+        }, $liste_rdv);
+
     }
 
     /**
@@ -191,28 +204,29 @@ class ServiceRdv implements ServiceRdvInterface
      * @return array tableau des disponibilités
      * @throws ServiceRendezVousInvalidDataException si l'ID du praticien n'est pas valide
      */
-    public function listerDisponibilitesPraticien(string $praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to): array
-    {
-        try{
-            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
-            $rdvs = $this->rdvRepository->getRendezVousByPraticienAndDateRange($praticien_id, $from, $to);
-            //liste des dispo
-            $dispos = [];
+public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
+    try {
+        $praticien = $this->servicePraticien->getPraticienById($praticien_id);
+        $rdvs = $this->rdvRepository->getRendezVousPraticien($praticien_id, $from, $to);
+        
+        // liste des dispo
+        $dispos = [];
 
-            //trouver les créneaux où il n'a pas de rendez vous 
-            $date = $from;
-            while($date <= $to){
-                $jour = $date->format('N');
-                $heure = $date->format('H:i');
-    
-                // Vérifier si c'est un jour de consultation
-                if (in_array($jour, self::JOURS_CONSULTATION)) {
-                    if (($heure >= self::HEURE_DEBUT_CONSULTATION_MATIN && $heure < self::HEURE_DEBUT_CONSULTATION_APREM) ||
-                        ($heure >= self::HEURE_DEBUT_CONSULTATION_APREM && $heure < '18:00')) {
-                        // Vérifier si le créneau est libre
+
+        // trouver les créneaux où il n'a pas de rendez-vous 
+        $date = $from;
+        while ($date <= $to) {
+            $jour = $date->format('N');
+            $heure = $date->format('H:i');
+
+            // Vérifier si c'est un jour de consultation
+            if (in_array($jour, self::JOURS_CONSULTATION)) {
+                // si c'est le matin on affiche les créneaux de 9h jusqu'au nombre de rdv matin
+                if ($heure == self::HEURE_DEBUT_CONSULTATION_MATIN) {
+                    $nbRdv = 0;
+                    while ($nbRdv < self::NB_RDV_MATIN) {
                         $isFree = true;
                         foreach ($rdvs as $rdv) {
-                            // print_r($rdv);
                             if ($rdv->getDate() == $date) {
                                 $isFree = false;
                                 break;
@@ -221,18 +235,41 @@ class ServiceRdv implements ServiceRdvInterface
                         if ($isFree) {
                             $dispos[] = $date;
                         }
+                        $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                        $nbRdv++;
                     }
                 }
-                
-                // Ajouter 30 minutes au créneau actuel
-                $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                // si c'est l'après-midi on affiche les créneaux de 14h jusqu'au nombre de rdv aprem
+                if ($heure == self::HEURE_DEBUT_CONSULTATION_APREM) {
+                    $nbRdv = 0;
+                    // on vérifie que la date soit inférieure à la date donnée
+                    while ($nbRdv < self::NB_RDV_APREM && $date <= $to) {
+                        $isFree = true;
+                        foreach ($rdvs as $rdv) {
+                            if ($rdv->getDate() == $date) {
+                                $isFree = false;
+                                break;
+                            }
+                        }
+                        if ($isFree) {
+                            $dispos[] = $date;
+                        }
+                        $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                        $nbRdv++;
+                    }
+                }
             }
 
-            return $dispos;
-
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
+            // Ajouter 30 minutes au créneau actuel
+            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
         }
+
+        return $dispos;
+
+    } catch (RepositoryEntityNotFoundException $e) {
+        throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
     }
+}
 
 }
+
