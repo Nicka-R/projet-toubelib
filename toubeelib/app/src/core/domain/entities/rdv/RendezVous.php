@@ -130,6 +130,11 @@ class RendezVous extends Entity
         $this->status = self::RDV_HONORE;
     }
 
+    public function nonHonorer(): void
+    {
+        $this->status = self::RDV_NON_HONORE;
+    }
+
     public function payer(): void
     {
         $this->status = self::RDV_PAYE;

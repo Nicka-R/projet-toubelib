@@ -37,6 +37,7 @@ try {
     );
 
     $rdv2 = $serviceRdv->creerRendezVous($inputRdv);
+    $rdv2 = $serviceRdv -> nonHonorerRDV($rdv2->getId());
     print_r($rdv2);
     // $rdv3 = $serviceRdv->creerRendezVous($inputRdv);    
 

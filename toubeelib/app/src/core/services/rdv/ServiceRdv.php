@@ -318,6 +318,20 @@ class ServiceRdv implements ServiceRdvInterface
         }
     }
 
+    public function nonHonorerRDV(string $rdvID): RendezVousDTO{
+        try{
+            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
+            $rdv->nonHonorer();
+            $this->rdvRepository->save($rdv);
+            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
+            $this->logger->info('Rendez-vous non honoré', ['id' => $rdv->getId()]);
+            return new RendezVousDTO($rdv, $praticienDTO);
+        }catch(RepositoryEntityNotFoundException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            
+        }
+    }
+
     public function payerRDV(string $rdvID) : RendezVousDTO{
         try{
             $rdv = $this->rdvRepository->getRendezVousById($rdvID);
