@@ -4,7 +4,7 @@
 .DS_STORE
 /coverage/
 # Vendor
-/vendor/
+app/vendor/
 # Logs
 /app/logs/*
 !/app/logs/README.md
@@ -16,3 +16,6 @@ cache.properties
 # Composer
 composer.phar
 composer.lock
+# ENV
+toubeelib.env
+toubeelibdb.env

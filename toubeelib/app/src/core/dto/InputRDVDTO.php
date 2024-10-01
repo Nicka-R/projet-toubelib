@@ -4,22 +4,21 @@ namespace toubeelib\core\dto;
 
 class InputRDVDTO extends DTO
 {
-    protected bool $type;
-    protected string $etatConsult;
-    protected bool $etatPatient; 
-    protected bool $status; 
-    protected string $creneau;
+    // protected string $type;
+    // protected string $etatConsult;
+    // protected string $etatPatient; 
+    // protected string $status; 
+    
     protected string $praticien; // UUID du praticien
+    protected string $patient; // UUID du patient
     protected string $specialite; // UUID de la spécialité
+    protected string $creneau;
 
 
-   public function _construct(bool $type, string $etatConsult, bool $etatPatient, bool $status, string $creneau, string $praticien, string $specialite) {
-       $this->type = $type;
-       $this->etatConsult = $etatConsult;
-       $this->etatPatient = $etatPatient;
-       $this->status = $status;
-       $this->creneau = $creneau;
-       $this->praticien = $praticien;
-       $this->specialite = $specialite;
+   public function _construct(string $praticien, string $patient, string $specialite,string $creneau) {
+    $this->praticien = $praticien;   
+    $this->patient = $patient;
+    $this->specialite = $specialite;
+    $this->creneau = $creneau;   
    }
 }

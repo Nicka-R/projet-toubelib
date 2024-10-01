@@ -3,7 +3,7 @@
 namespace toubeelib\core\dto;
 
 class InputPraticienDTO extends DTO
-{
+{   
     protected string $nom;
     protected string $prenom;
     protected string $adresse;

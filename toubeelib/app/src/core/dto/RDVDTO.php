@@ -2,32 +2,59 @@
 
 namespace toubeelib\core\dto;
 
-use toubeelib\core\domain\entities\rdv\RDV;
+use DateTimeImmutable;
+use toubeelib\core\domain\entities\rdv\RendezVous;
 use toubeelib\core\dto\DTO;
 
 class RDVDTO extends DTO
 {   
     protected string $ID;
-    protected bool $type;
-    protected string $etatConsult;
-    protected bool $etatPatient; 
-    protected bool $status; 
+    protected string $praticien;
+    protected string $patient;
+    protected string $specialite;
     protected string $creneau;
-    protected string $praticien_nom;
-    protected string $specialite_label;
+    // protected string $type;
+    // protected string $etatConsult;
+    // protected string $etatPatient; 
+    // protected string $status; 
+    // protected string $creneau;
 
-    public function __construct(RDV $r)
+    public function __construct(RendezVous $r)
     {
         $this->ID = $r->getID();
-        $this->type = $r->type;
-        $this->praticien_nom = $r->praticien->nom;
-        $this->specialite_label = $r->specialite->label;
-        $this->etatConsult= $r->etatConsult;
-        $this->etatPatient = $r->etatPatient;
-        $this->status = $r->status;
-        $this->creneau = $r->creneau;
+        $this->praticien = $r->idPraticien;
+        $this->patient = $r->idPatient;
+        $this->specialite = $r->specialite_label;
+        $this->creneau = $r->creneau ? $r->creneau->format('Y-m-d H:i:s') : '';
         
     }
+
+    public function getID(): string
+    {
+        return $this->ID;
+    }
+
+    public function getPraticien(): string
+    {
+        return $this->praticien;
+    }
+
+    public function getPatient(): string
+    {
+        return $this->patient;
+    }
+
+    public function getSpecialite(): string
+    {
+        return $this->specialite;
+    }
+
+    public function getCreneau(): string
+    {
+        return $this->creneau;
+    }
+
+
 
 
 }

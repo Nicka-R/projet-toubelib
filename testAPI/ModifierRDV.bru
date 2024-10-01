@@ -1,0 +1,17 @@
+meta {
+  name: ModifierRDV
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:6080/rdvs/r1/modifier
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "patient": "pa4"
+  }
+}
