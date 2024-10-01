@@ -100,16 +100,16 @@ try {
     );
 
     $rdv6 = $serviceRdv->creerRendezVous($inputRdv);
-    $serviceRdv->annulerRendezVous($rdv6->getId());     //il faut adapter le code pour ajouter une dispo quand un rdv est annulé
+    // $serviceRdv->annulerRendezVous($rdv6->getId());     //il faut adapter le code pour ajouter une dispo quand un rdv est annulé
                                                         // genre mettre à jour dans la méthode annulerRendezVous
 
     // lister les rendez-vous d'un praticien à une date donnée
-    // $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'));
-    // foreach($rdvs as $rdv){
-    //     print_r($rdv);
-    // }
+    $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), 2);
+    foreach($rdvs as $rdv){
+        print_r($rdv);
+    }
 
-    $dispos = $serviceRdv->listerDisponibilitesPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 12:00'));
+    $dispos = $serviceRdv->listerDisposPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-13 16:00'));
     foreach($dispos as $dispo){
         print_r($dispo);
     }    
