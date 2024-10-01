@@ -125,6 +125,26 @@ class RendezVous extends Entity
         $this->status = self::RDV_ANNULE;
     }
 
+    public function honorer(): void
+    {
+        $this->status = self::RDV_HONORE;
+    }
+
+    public function payer(): void
+    {
+        $this->status = self::RDV_PAYE;
+    }
+
+    public function transmettre(): void
+    {
+        $this->status = self::RDV_TRANSMIS;
+    }
+
+    public function isAnnule(): bool
+    {
+        return $this->status === self::RDV_ANNULE;
+    }
+
     public function toDTO(PraticienDto $praticienDTO) : RendezVousDTO
     {
         return new RendezVousDTO($this, $praticienDTO);	
