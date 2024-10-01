@@ -4,7 +4,8 @@ namespace toubeelib\core\dto;
 
 use toubeelib\core\domain\entities\rdv\RendezVous;
 use toubeelib\core\domain\entities\praticien\Praticien;
-use toubeelib\core\domain\entities\praticien\Specialite;
+use toubeelib\core\dto\PraticienDTO;
+use toubeelib\core\dto\SpecialiteDTO;
 
 class RendezVousDTO
 {
@@ -71,9 +72,14 @@ class RendezVousDTO
         return $this->newPatient; 
     }
 
-    public function setSpecialite(Specialite $spe): void
+    public function setSpecialite(SpecialiteDTO $spe): void
     {
         $this->specialiteLabel = $spe->getLabel();
+    }
+
+    public function setPraticien(PraticienDTO $praticien): void
+    {
+        $this->praticienID = $praticien->getID();
     }
 
     public function toEntity(): RendezVous

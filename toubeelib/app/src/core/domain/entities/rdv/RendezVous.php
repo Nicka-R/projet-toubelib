@@ -3,6 +3,8 @@ namespace toubeelib\core\domain\entities\rdv;
 
 use toubeelib\core\domain\entities\Entity;
 use toubeelib\core\domain\entities\praticien\Specialite;
+use toubeelib\core\dto\RendezVousDTO;
+use toubeelib\core\dto\PraticienDTO;
 class RendezVous extends Entity
 {
     private const RDV_ANNULE = -1;
@@ -111,5 +113,10 @@ class RendezVous extends Entity
     public function annuler(): void
     {
         $this->status = self::RDV_ANNULE;
+    }
+
+    public function toDTO(PraticienDto $praticienDTO) : RendezVousDTO
+    {
+        return new RendezVousDTO($this, $praticienDTO);	
     }
 }
