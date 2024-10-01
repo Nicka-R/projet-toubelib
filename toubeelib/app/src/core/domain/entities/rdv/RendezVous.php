@@ -45,6 +45,11 @@ class RendezVous extends Entity
         $this->specialite = $specialite; 
     }
 
+    public function setPatientID(string $patientID): void
+    {
+        $this->patientID = $patientID;
+    }  
+
     public function setNewPatient(bool $newPatient): void
     {
         $this->newPatient = $newPatient;
@@ -58,6 +63,11 @@ class RendezVous extends Entity
     public function setType(bool $type): void
     {
         $this->type = $type;
+    }
+
+    public function setSpecialiteID(string $specialiteID): void
+    {
+        $this->specialiteID = $specialiteID;
     }
 
     public function getId(): string

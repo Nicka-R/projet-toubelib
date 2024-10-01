@@ -5,7 +5,7 @@ namespace toubeelib\core\dto;
 use toubeelib\core\domain\entities\rdv\RendezVous;
 use toubeelib\core\domain\entities\praticien\Praticien;
 use toubeelib\core\dto\PraticienDTO;
-use toubeelib\core\dto\SpecialiteDTO;
+use toubeelib\core\dto\SpecialiteDTO; 
 
 class RendezVousDTO
 {
@@ -75,6 +75,11 @@ class RendezVousDTO
     public function setSpecialite(SpecialiteDTO $spe): void
     {
         $this->specialiteLabel = $spe->getLabel();
+    }
+
+    public function setSpecialiteID(string $specialiteID): void
+    {
+        $this->specialiteID = $specialiteID;
     }
 
     public function setPraticien(PraticienDTO $praticien): void
