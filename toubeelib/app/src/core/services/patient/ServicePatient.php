@@ -26,7 +26,7 @@ class ServicePatient implements ServicePatientInterface
      */
     public function createPatient(InputPatientDTO $p): PatientDTO
     {
-        $patient = new Patient($p->nom, $p->prenom, $p->adresse, $p->tel, $p->specialite);
+        $patient = new Patient($p->nom, $p->prenom, $p->adresse, $p->tel);
         
         $this->patientRepository->save($patient);
         return new PatientDTO($patient);

@@ -39,5 +39,4 @@ class ArrayPatientRepository implements PatientRepositoryInterface
 
         return $patient;
     }
-
 }
