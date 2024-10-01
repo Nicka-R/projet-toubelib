@@ -3,7 +3,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $serviceRdv = new \toubeelib\core\services\rdv\ServiceRdv(
     new \toubeelib\infrastructure\repositories\ArrayRdvRepository(),
-    new \toubeelib\core\services\praticien\ServicePraticien(new \toubeelib\infrastructure\repositories\ArrayPraticienRepository())
+    new \toubeelib\core\services\praticien\ServicePraticien(new \toubeelib\infrastructure\repositories\ArrayPraticienRepository()),
+    new \Monolog\Logger('toubeelib', [new \Monolog\Handler\StreamHandler(__DIR__ . '/../logs/toubeelib.log', \Monolog\Logger::DEBUG)])
 );
 
 //créer un rdv à aprtir d'un inputRdvDTO
@@ -88,6 +89,10 @@ try {
 
     $rdv5 = $serviceRdv->creerRendezVous($inputRdv);
 
+    // honorer le rendez-vous
+    $rdv5 = $serviceRdv->honorerRDV($rdv5->getId());
+    print_r($rdv5);
+
     $inputRdv = new \toubeelib\core\dto\InputRdvDTO(
         'p1', // praticien_id
         'pa2', // patient_id
@@ -115,6 +120,7 @@ try {
 
     //modifier le rendez vous
     $rdv6 = $serviceRdv -> modifierRDV($rdv6->getId(), 'B', 'pa1');
+    $rdv6 = $serviceRdv -> payerRDV($rdv6->getId());  
     print_r($rdv6);
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
     echo $e->getMessage();
