@@ -24,4 +24,9 @@ class SpecialiteDTO extends DTO
         $s = new Specialite($this->ID, $this->label, $this->description);
         return $s;
     }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
 }
