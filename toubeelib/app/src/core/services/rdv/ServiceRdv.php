@@ -270,5 +270,24 @@ class ServiceRdv implements ServiceRdvInterface
         }
     }
 
+
+    public function modifierRDV(string $rdvID, string $speID = null, string $patientID = null) :  RendezVousDTO {
+        try{
+            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
+            if($speID){
+                $specialite = $this->servicePraticien->getSpecialiteById($speID);
+                $rdv->setSpecialite($specialite->toEntity());
+                $rdv->setSpecialiteID($speID);
+            }
+            if($patientID){
+                $rdv->setPatientID($patientID);
+            }
+            $this->rdvRepository->save($rdv);
+            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
+            return new RendezVousDTO($rdv, $praticienDTO);
+        }catch(RepositoryEntityNotFoundException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+        }
+    }
 }
 
