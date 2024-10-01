@@ -100,8 +100,7 @@ try {
     );
 
     $rdv6 = $serviceRdv->creerRendezVous($inputRdv);
-    // $serviceRdv->annulerRendezVous($rdv6->getId());     //il faut adapter le code pour ajouter une dispo quand un rdv est annulé
-                                                        // genre mettre à jour dans la méthode annulerRendezVous
+    print_r($rdv6);
 
     // lister les rendez-vous d'un praticien à une date donnée
     $rdvs = $serviceRdv->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), 2);
@@ -113,6 +112,10 @@ try {
     foreach($dispos as $dispo){
         print_r($dispo);
     }    
+
+    //modifier le rendez vous
+    $rdv6 = $serviceRdv -> modifierRDV($rdv6->getId(), 'B', 'pa1');
+    print_r($rdv6);
 } catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
     echo $e->getMessage();
 } catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {
