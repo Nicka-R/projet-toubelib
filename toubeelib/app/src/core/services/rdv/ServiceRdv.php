@@ -1,348 +1,136 @@
 <?php
+
 namespace toubeelib\core\services\rdv;
 
-use toubeelib\core\dto\RendezVousDTO;
-use toubeelib\core\repositoryInterfaces\RdvRepositoryInterface;
+use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
+use toubeelib\core\repositoryInterfaces\PraticienRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
-use toubeelib\core\services\rdv\ServiceRdvInterface;
-use toubeelib\core\services\praticien\ServicePraticienInterface;
+use toubeelib\core\services\rdv\ServiceRDVInvalidDataException;
+use toubeelib\core\services\rdv\ServiceRDVNotFoundException;
+use toubeelib\core\dto\InputRDVDTO;
 use toubeelib\core\domain\entities\rdv\RendezVous;
-use toubeelib\core\dto\SpecialiteDTO;
-use toubeelib\core\domain\entities\praticien\Specialite;
-use toubeelib\core\dto\InputRdvDTO;
-use toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException;
-use Ramsey\Uuid\Uuid;
+use toubeelib\core\dto\RDVDTO;
 use Psr\Log\LoggerInterface;
 
-class ServiceRdv implements ServiceRdvInterface
-{
-    private const JOURS_CONSULTATION = [1, 2, 3, 4, 5];
-    private const HEURE_DEBUT_CONSULTATION_MATIN = '09:00';
-    private const HEURE_DEBUT_CONSULTATION_APREM = '14:00';
-    private const NB_RDV_MATIN = 6;
-    private const NB_RDV_APREM = 7;
-    private const DUREE_RDV = 30;
+class ServiceRDV implements ServiceRDVInterface {
 
+    private RDVRepositoryInterface $rdvRepository;
+    private PraticienRepositoryInterface $praticienRepository;
+    private LoggerInterface $logger;
 
-    private RdvRepositoryInterface $rdvRepository;
-    private ServicePraticienInterface $servicePraticien;
-
-    public function __construct(RdvRepositoryInterface $rdvRepository, ServicePraticienInterface $servicePraticien, LoggerInterface $logger)
-    {
+    public function __construct(RDVRepositoryInterface $rdvRepository, PraticienRepositoryInterface $praticienRepository, LoggerInterface $logger) {
         $this->rdvRepository = $rdvRepository;
-        $this->servicePraticien = $servicePraticien;
+        $this->praticienRepository = $praticienRepository;
         $this->logger = $logger;
+    } 
+
+    public function getRDVs(): array
+    {
+        return array_map(fn(RendezVous $rdv) => new RDVDTO($rdv), $this->rdvRepository->getRDVs());
     }
 
-    public function getRendezVousById(string $id): RendezVousDTO
+    public function getRDVById(string $id): RDVDTO
     {
         try {
-            $rendezVous = $this->rdvRepository->getRendezVousById($id);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rendezVous->getPraticienID());
-            return new RendezVousDTO($rendezVous, $praticienDTO);
-        } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            $rdv = $this->rdvRepository->getRDVById($id);
+            return $rdv->toDTO();
+        } catch(RepositoryEntityNotFoundException $e) {
+            throw new ServiceRDVInvalidDataException('ID du RDV non trouvé');
         }
     }
 
-    /** 
-     * fonction permettant de créer un rendez-vous avec les données fournies dans le DTO
-     * @param InputRdvDTO $inputRDV les données du rendez-vous
-     * @throws ServiceRendezVousInvalidDataException si les données du rendez-vous ne sont pas valides
-     * @return RendezVousDTO
-     */
-
-    public function creerRendezVous(InputRdvDTO $inputRDV): RendezVousDTO
+    public function creerRendezvous(InputRDVDTO $r): RDVDTO 
     {
         try {
+            // Test Praticien existe 
+            $praticien = $this->praticienRepository->getPraticienById($r->praticien); //lance une RepositoryEntityNotFoundException si le praticien n'existe pas
 
-            $praticienDTO = $this->servicePraticien->getPraticienById($inputRDV->praticien_id);
-            //vérifier que le praticien soit disponible
-            if (!$this->isPraticienAvailable($inputRDV->praticien_id, $inputRDV->date)) {
-                throw new ServiceRendezVousInvalidDataException('Praticien non disponible');
-            }
-            $specialiteDTO = $this->getSpecialiteById($inputRDV->specialite_id);
-            if (!$specialiteDTO) {
-                throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
+            // Test Specialite existe
+            if ($praticien->specialite->ID !== $r->specialite) {
+                throw new ServiceRDVInvalidDataException('Spécialité non valide pour ce praticien');    
             }
 
-            //vérifier que les spécialités du praticien correspondent à celles du rendez-vous
-            // echo "specialite du rendez-vous : ".$inputRDV->specialite_id."\n";
-            if (!$this->checkPraticienSpecialites($inputRDV->praticien_id, $inputRDV->specialite_id)) {
-                throw new ServiceRendezVousInvalidDataException('Praticien ne possède pas la spécialité requise');
-            }
+            //ToDo : valider la disponibilité du créneau
 
-            //générer un UUID pour le rendez-vous
-            $inputRDV->id = Uuid::uuid4()->toString();
+            $rdv = new RendezVous($r->praticien, $r->patient, $r->specialite, $r->creneau);
 
-            $rendezVous = new RendezVous(
-                $inputRDV->praticien_id,
-                $inputRDV->patient_id,
-                $inputRDV->specialite_id,
-                $inputRDV->date
-            );
-            $rendezVous->setType($inputRDV->type);
-            $rendezVous->setNewPatient($inputRDV->newPatient);
-            $rendezVous->setId($inputRDV->id);
+            $this->rdvRepository->save($rdv);
 
-            $rendezVous->setSpecialite($specialiteDTO->toEntity());
-            $this->rdvRepository->save($rendezVous);
-            $this->logger->info('Rendez-vous créé', ['id' => $rendezVous->getId()]);
+            $this->logger->info("Création du RDV avec l'ID: {$rdv->getID()}");
 
-            return new RendezVousDTO($rendezVous, $praticienDTO);
-        }catch(ServiceRendezVousInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException($e->getMessage());
+            return $rdv->toDTO();
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException($e->getMessage());
-        }
-    }
+            throw new ServiceRDVInvalidDataException('Praticien introuvable');
+        } 
+    }  
+    
 
-
-    /** récupérer la spécialité par son id
-     * @param string $id
-     * @return SpecialiteDTO
-     */
-    public function getSpecialiteById(string $id): SpecialiteDTO
-    {
+    public function annulerRendervous(string $id) : RDVDTO {
         try {
-            $specialite = $this->servicePraticien->getSpecialiteById($id);
-            return $specialite;
-        } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
-        }
-    }
+            $rdv = $this->rdvRepository->getRDVById($id);
+            $rdv->setStatus("annulé");
 
-    /**
-     * vérifie la disponibilité d'un praticien à une date donnée
-     * @param string $praticien_id
-     * @param \DateTimeImmutable $date
-     * @return bool
-     */
-    public function isPraticienAvailable(string $praticien_id, \DateTimeImmutable $date): bool
-    {
-        $rendezVous = $this->rdvRepository->getRendezVousByPraticienAndDate($praticien_id, $date);
-        
-        return empty($rendezVous);
-    }
+            //Todo : rendre dispo le creneau
 
-    /**
-     * fonction qui permet de vérifier que les spécialités du praticien correspondent à celles du rendez-vous
-     * @param string $praticienId l'ID du praticien
-     * @param string $specialite la liste des spécialités requises pour le rendez-vous
-     * @throws ServicePraticienInvalidDataException si l'ID du praticien n'est pas valide
-     * @return bool true si toutes les spécialités requises sont présentes, sinon false
-     */
-    public function checkPraticienSpecialites(string $praticienId, string $specialite): bool
-    {
-        $spes = $this->servicePraticien->getSpecialitesByPraticienId($praticienId);
-        $specialitesPraticienIds = [];
-        foreach ($spes as $spe) {
-            $specialitesPraticienIds[] = $spe->ID;
-        }
-        if($specialite === $specialitesPraticienIds[0]){
-            return true;
-        }
-        //compare les spécialités du praticien avec celles du rendez-vous
-        return false;
+            $this->rdvRepository->update($rdv);
 
-    }
-
-
-    /**
-     * fonction qui permet d'annuler un rendez-vous en modifiant son statut
-     * @param string $id l'ID du rendez-vous
-     * @throws ServiceRendezVousInvalidDataException si l'ID n'est pas valide
-     * @return RendezVousDTO
-     */
-    public function annulerRendezVous(string $id): void{
-        try {
-            $rdv = $this->rdvRepository->getRendezVousById($id);
-        } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-        }
-        $rdv->annuler();
-        $this->rdvRepository->save($rdv);
-        $this->logger->info('Rendez-vous annulé', ['id' => $rdv->getId()]);
-
-    }
-
-
-    /**fonction qui permet de lister les rendez-vous d'un praticien a une période donnée
-     * @param string $praticien_id
-     * @param \DateTimeImmutable $dateDebut
-     * @param \DateTimeImmutable $dateFin
-     * @return array tableau de DateTime des rendez-vous
-     */
-    public function listerRendezVousPraticien(string $praticien_id, \DateTimeInterface $dateDebut, int $nbJours): array
-    {
-        try{
-            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
-        }catch(ServicePraticienInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
-        }
-        if ($nbJours < 1) {
-            throw new ServiceRendezVousInvalidDataException('Invalid number of days');
-        }
-        $premier_rdv = $dateDebut->modify('08:00');
-        $dernier_rdv = $dateDebut->modify('+'. $nbJours-1 . ' days')->modify('23:59');
-        $liste_rdv = $this->rdvRepository->getRendezVousPraticien($praticien_id, $premier_rdv, $dernier_rdv);
-        return array_map(function($rdv){
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $rdv_dto = $rdv->toDTO($praticienDTO);
+            $this->logger->info("Annulation du RDV avec l'ID: {$id}");
             
-            $specialiteDTO = $this->servicePraticien->getSpecialiteById($rdv->getSpecialiteID());
-            $rdv_dto->setPraticien($praticienDTO);
-            $rdv_dto->setSpecialite($specialiteDTO);
-            return $rdv_dto;
-        }, $liste_rdv);
+            return $rdv->toDTO();
+        } catch(RepositoryEntityNotFoundException $e) {
+            throw new ServiceRDVInvalidDataException('ID du RDV non trouvé');
+        }
 
     }
 
-    /**
-     * fonction qui liste les disponibilités d'un praticien à une date donnée
-     * @param string $praticien_id
-     * @param \DateTimeImmutable $date
-     * @return array tableau des disponibilités
-     * @throws ServiceRendezVousInvalidDataException si l'ID du praticien n'est pas valide
-     */
-    public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
+    public function modifierPatient(string $id, string $patient): RDVDTO {
         try {
-            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
-            $rdvs = $this->rdvRepository->getRendezVousPraticien($praticien_id, $from, $to);
+            $rdv = $this->rdvRepository->getRDVById($id);
+            $oldPatient = $rdv->getPatient();
+
+            $rdv->setPatient($patient);
+
+            $this->logger->info("Avant modification - Patient actuel: {$oldPatient}, ID RDV: {$id}");
             
-            // liste des dispo
-            $dispos = [];
+            
+            $this->rdvRepository->update($rdv);
 
-            // trouver les créneaux où il n'a pas de rendez-vous 
-            $date = $from;
-            while ($date <= $to) {
-                $jour = $date->format('N');
-                $heure = $date->format('H:i');
+            $newPatient = $rdv->getPatient();
 
-                // Vérifier si c'est un jour de consultation
-                if (in_array($jour, self::JOURS_CONSULTATION)) {
-                    // si c'est le matin on affiche les créneaux de 9h jusqu'au nombre de rdv matin
-                    if ($heure == self::HEURE_DEBUT_CONSULTATION_MATIN) {
-                        $nbRdv = 0;
-                        while ($nbRdv < self::NB_RDV_MATIN) {
-                            $isFree = true;
-                            foreach ($rdvs as $rdv) {
-                                if ($rdv->getDate() == $date) {
-                                    $isFree = false;
-                                    break;
-                                }
-                            }
-                            if ($isFree || $rdv->isAnnule()) {  // on vérifie si le rendez-vous est annulé
-                                $dispos[] = $date;
-                            }
-                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
-                            $nbRdv++;
-                        }
-                    }
-                    // si c'est l'après-midi on affiche les créneaux de 14h jusqu'au nombre de rdv aprem
-                    if ($heure == self::HEURE_DEBUT_CONSULTATION_APREM) {
-                        $nbRdv = 0;
-                        // on vérifie que la date soit inférieure à la date donnée
-                        while ($nbRdv < self::NB_RDV_APREM && $date <= $to) {
-                            $isFree = true;
-                            foreach ($rdvs as $rdv) {
-                                if ($rdv->getDate() == $date) {
-                                    $isFree = false;
-                                    break;
-                                }
-                            }
-                            if ($isFree || $rdv->isAnnule()) { 
-                                $dispos[] = $date;
-                            }
-                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
-                            $nbRdv++;
-                        }
-                    }
-                }
-
-                // Ajouter 30 minutes au créneau actuel
-                $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
-            }
-
-            return $dispos;
-
+            $this->logger->info("Après modification - Nouveau pa: {$newPatient}, ID RDV: {$id}");
+    
+            return $rdv->toDTO();
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
+            $this->logger->error("RDV non trouvé pour l'ID: {$id}");
+            throw new ServiceRDVNotFoundException('ID du RDV non trouvé');
         }
     }
+    
+    public function modifierSpecialite(string $id, string $specialite): RDVDTO {
+        try {
+            $rdv = $this->rdvRepository->getRDVById($id);
+    
+            $praticien = $this->praticienRepository->getPraticienById($rdv->getPraticien());
 
-
-    public function modifierRDV(string $rdvID, string $speID = null, string $patientID = null) :  RendezVousDTO {
-        try{
-            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
-            if($speID){
-                $specialite = $this->servicePraticien->getSpecialiteById($speID);
-                $rdv->setSpecialite($specialite->toEntity());
-                $rdv->setSpecialiteID($speID);
+            if ($praticien->specialite->ID !== $specialite) {
+                throw new ServiceRDVInvalidDataException("La spécialité {$specialite} n'est pas valide pour le praticien {$rdv->getPraticien()}.");
             }
-            if($patientID){
-                $rdv->setPatientID($patientID);
-            }
-            $this->rdvRepository->save($rdv);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $this->logger->info('Rendez-vous modifié', ['id' => $rdv->getId()]);
-            return new RendezVousDTO($rdv, $praticienDTO);
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-        }
-    }
 
-    public function transmettreRDV(string $rdvID): RendezVousDTO{
-        try{
-            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
-            $rdv->transmettre();
-            $this->rdvRepository->save($rdv);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $this->logger->info('Rendez-vous transmis', ['id' => $rdv->getId()]);
-            return new RendezVousDTO($rdv, $praticienDTO);
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-        }
-    }
+            $oldSpecialty = $rdv->getSpecialite();
+            $rdv->setSpecialite($specialite);
 
-    public function honorerRDV(string $rdvID): RendezVousDTO{
-        try{
-            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
-            $rdv->honorer();
-            $this->rdvRepository->save($rdv);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $this->logger->info('Rendez-vous honoré', ['id' => $rdv->getId()]);
-            return new RendezVousDTO($rdv, $praticienDTO);
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-        }
-    }
+            $this->rdvRepository->update($rdv);
 
-    public function nonHonorerRDV(string $rdvID): RendezVousDTO{
-        try{
-            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
-            $rdv->nonHonorer();
-            $this->rdvRepository->save($rdv);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $this->logger->info('Rendez-vous non honoré', ['id' => $rdv->getId()]);
-            return new RendezVousDTO($rdv, $praticienDTO);
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-            
+            $this->logger->info("Changement de la spécialité {$oldSpecialty} en {$specialite} pour l'ID: {$id}");
+    
+            return $rdv->toDTO();
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRDVNotFoundException('ID du RDV non trouvé');
         }
     }
+    
+    
 
-    public function payerRDV(string $rdvID) : RendezVousDTO{
-        try{
-            $rdv = $this->rdvRepository->getRendezVousById($rdvID);
-            $rdv->payer();
-            $this->rdvRepository->save($rdv);
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $this->logger->info('Rendez-vous payé', ['id' => $rdv->getId()]);
-            return new RendezVousDTO($rdv, $praticienDTO);
-        }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
-        }
-    }
+
+
 }
-

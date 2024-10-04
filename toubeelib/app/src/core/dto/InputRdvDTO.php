@@ -40,5 +40,5 @@ class InputRdvDTO {
         if ($date <= $now) {
             throw new \Exception('La date du rendez-vous doit être supérieure à la date actuelle.');
         }
-    }
+   }
 }

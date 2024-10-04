@@ -39,10 +39,6 @@ return [
         $logger = $container->get(LoggerInterface::class);
         return new ServiceRDV($rdvRepository, $praticienRepository,$logger);
     }, 
-    
-
-];
-
     'praticien.pdo' => function (ContainerInterface $container) {
         $config = parse_ini_file(__DIR__ . '/praticien.db.ini');
         $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']}";
@@ -79,3 +75,5 @@ return [
     
 
 ];
+
+   
