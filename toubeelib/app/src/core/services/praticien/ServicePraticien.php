@@ -2,7 +2,6 @@
 
 namespace toubeelib\core\services\praticien;
 
-use Respect\Validation\Exceptions\NestedValidationException;
 use toubeelib\core\domain\entities\praticien\Praticien;
 use toubeelib\core\dto\InputPraticienDTO;
 use toubeelib\core\dto\PraticienDTO;
@@ -13,6 +12,9 @@ use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 class ServicePraticien implements ServicePraticienInterface
 {
     private PraticienRepositoryInterface $praticienRepository;
+
+    private const JOURS_DE_CONSULTATION = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];    
+
 
     public function __construct(PraticienRepositoryInterface $praticienRepository)
     {

@@ -2,12 +2,15 @@
 
 namespace toubeelib\infrastructure\repositories;
 
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use toubeelib\core\domain\entities\rdv\RendezVous;
-use toubeelib\core\repositoryInterfaces\RdvRepositoryInterface;
+use toubeelib\core\dto\RDVDTO;
+use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 
-class ArrayRdvRepository implements RdvRepositoryInterface
+class ArrayRdvRepository implements RDVRepositoryInterface
 {
     private array $rdvs = [];
 
@@ -20,6 +23,10 @@ class ArrayRdvRepository implements RdvRepositoryInterface
             $r3->setID('r3');
 
         $this->rdvs  = ['r1'=> $r1, 'r2'=>$r2, 'r3'=> $r3 ];
+    }
+
+    public function getRDVs(): array {
+        return array_map(fn(RendezVous $rdv) => $rdv->toDTO(), $this->rdvs);
     }
 
     public function getRendezVousById(string $id): RendezVous
@@ -41,10 +48,18 @@ class ArrayRdvRepository implements RdvRepositoryInterface
         return $rdvs;
     }
 
-    public function save(RendezVous $rdv): RendezVous
-    {
-        $this->rdvs[$rdv->getID()] = $rdv;
-        return $rdv;
+    public function save(RendezVous $rdv): RDVDTO{
+        $id = Uuid::uuid4()->toString();
+        $rdv->setID($id);
+        $this->rdvs[$id] = $rdv;
+        return $rdv->toDTO();
+    }
+
+    public function update(RendezVous $rdv): RDVDTO {        
+        if (isset($this->rdvs[$rdv->getID()])) {            
+            $this->rdvs[$rdv->getID()] = $rdv;
+            return $rdv->toDTO();
+        }
     }
 
     public function getRendezVousPraticien(string $praticien_id, \DateTimeImmutable $dateDebut, \DateTimeImmutable $dateFin): array
