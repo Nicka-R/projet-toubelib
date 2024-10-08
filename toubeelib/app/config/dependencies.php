@@ -12,7 +12,13 @@ use Monolog\Logger;
 
 return [
 
-    
+    'praticien.pdo' => function (ContainerInterface $container) {
+        $config = parse_ini_file(__DIR__ . '/praticien.db.ini');
+        $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']}";
+        $user = $config['username'];
+        $password = $config['password'];
+        return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+    },
 
     // Utilisation d'une instance ArrayRdvRepository à chaque utilisation d'une RDVRepositoryInterface
     RDVRepositoryInterface::class => function () {

@@ -34,6 +34,11 @@ class ServiceRDV implements ServiceRDVInterface
         $this->logger = $logger;
     }
 
+    public function getRDVs(): array
+    {
+        return array_map(fn(RendezVous $rdv) => new RDVDTO($rdv), $this->rdvRepository->getRDVs());
+    }
+
     public function getRendezVousById(string $id): RDVDTO
     {
         try {
@@ -291,6 +296,53 @@ class ServiceRDV implements ServiceRDVInterface
             throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
         }
     }
+
+    public function modifierPatient(string $id, string $patient): RDVDTO {
+        try {
+            $rdv = $this->rdvRepository->getRDVById($id);
+            $oldPatient = $rdv->getPatient();
+
+            $rdv->setPatient($patient);
+
+            $this->logger->info("Avant modification - Patient actuel: {$oldPatient}, ID RDV: {$id}");
+            
+            
+            $this->rdvRepository->update($rdv);
+
+            $newPatient = $rdv->getPatient();
+
+            $this->logger->info("Après modification - Nouveau pa: {$newPatient}, ID RDV: {$id}");
+    
+            return $rdv->toDTO();
+        } catch (RepositoryEntityNotFoundException $e) {
+            $this->logger->error("RDV non trouvé pour l'ID: {$id}");
+            throw new ServiceRDVNotFoundException('ID du RDV non trouvé');
+        }
+    }
+    
+    public function modifierSpecialite(string $id, string $specialite): RDVDTO {
+        try {
+            $rdv = $this->rdvRepository->getRDVById($id);
+    
+            $praticien = $this->praticienRepository->getPraticienById($rdv->getPraticien());
+
+            if ($praticien->specialite->ID !== $specialite) {
+                throw new ServiceRDVInvalidDataException("La spécialité {$specialite} n'est pas valide pour le praticien {$rdv->getPraticien()}.");
+            }
+
+            $oldSpecialty = $rdv->getSpecialite();
+            $rdv->setSpecialite($specialite);
+
+            $this->rdvRepository->update($rdv);
+
+            $this->logger->info("Changement de la spécialité {$oldSpecialty} en {$specialite} pour l'ID: {$id}");
+    
+            return $rdv->toDTO();
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRDVNotFoundException('ID du RDV non trouvé');
+        }
+    }
+
 
     public function transmettreRDV(string $rdvID): RDVDTO{
         try{
