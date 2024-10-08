@@ -4,11 +4,12 @@ use toubeelib\core\services\rdv\ServiceRDVInterface;
 use toubeelib\core\services\rdv\ServiceRDV;
 use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\PraticienRepositoryInterface;
-use toubeelib\infrastructure\repositories\ArrayRdvRepository;
-use toubeelib\infrastructure\repositories\ArrayPraticienRepository;
+use toubeelib\infrastructure\PDO\PdoPraticienRepository;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
+use toubeelib\core\services\praticien\ServicePraticien;
+use toubeelib\core\services\praticien\ServicePraticienInterface;
 
 return [
 
@@ -20,16 +21,11 @@ return [
         return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     },
 
-    // Utilisation d'une instance ArrayRdvRepository à chaque utilisation d'une RDVRepositoryInterface
-    RDVRepositoryInterface::class => function () {
-        return new ArrayRdvRepository();
+    PraticienRepositoryInterface::class => function (ContainerInterface $container) {
+        $pdo = $container->get('praticien.pdo');
+        return new PdoPraticienRepository($pdo);
     },
-
-    // Utilisation d'une instance ArrayPraticienRepository à chaque utilisation d'une PraticienRepositoryInterface
-    PraticienRepositoryInterface::class => function () {
-        return new ArrayPraticienRepository();
-    },
-
+    
     LoggerInterface::class => function () {
         $logger = new Logger('toubeelib');
         $logfile = __DIR__ . '/../logs/toubeelib.log';
@@ -45,6 +41,12 @@ return [
         $logger = $container->get(LoggerInterface::class);
         return new ServiceRDV($rdvRepository, $praticienRepository,$logger);
     }, 
+
+    // Utilisation d'une instance ServicePraticien à chaque utilisation d'une ServicePraticienInterface
+    ServicePraticienInterface::class => function (ContainerInterface $container) {
+        $praticienRepository = $container->get(PraticienRepositoryInterface::class);
+        return new ServicePraticien($praticienRepository);
+    }
     
 
 ];

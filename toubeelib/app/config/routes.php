@@ -7,6 +7,7 @@ use Slim\App;
 use \toubeelib\application\actions\ModifierRDVAction;
 use \toubeelib\application\actions\RDVbyIDAction;
 use \toubeelib\application\actions\HomeAction;
+use \toubeelib\application\actions\PraticienbyIDAction;
 
 return function(App $app): App {
 
@@ -15,6 +16,8 @@ return function(App $app): App {
     $app->get('/rdvs/{id}', RDVbyIDAction::class);
 
     $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class);
+
+    $app->get('/praticiens/{id}', PraticienbyIDAction::class);
 
 
     return $app;
