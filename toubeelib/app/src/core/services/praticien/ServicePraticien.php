@@ -11,9 +11,7 @@ use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 
 class ServicePraticien implements ServicePraticienInterface
 {
-    private PraticienRepositoryInterface $praticienRepository;
-
-    private const JOURS_DE_CONSULTATION = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];    
+    private PraticienRepositoryInterface $praticienRepository;  
 
 
     public function __construct(PraticienRepositoryInterface $praticienRepository)
@@ -39,7 +37,7 @@ class ServicePraticien implements ServicePraticienInterface
             $praticien = $this->praticienRepository->getPraticienById($id);
             return new PraticienDTO($praticien);
         } catch(RepositoryEntityNotFoundException $e) {
-            throw new ServicePraticienInvalidDataException('invalid Praticien ID');
+            throw new ServicePraticienNotFoundException($e->getMessage());
         }
     }
 
