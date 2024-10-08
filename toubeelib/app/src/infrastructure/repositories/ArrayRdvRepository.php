@@ -4,10 +4,10 @@ namespace toubeelib\infrastructure\repositories;
 
 use Ramsey\Uuid\Uuid;
 use toubeelib\core\domain\entities\rdv\RendezVous;
-use toubeelib\core\repositoryInterfaces\RdvRepositoryInterface;
+use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 
-class ArrayRdvRepository implements RdvRepositoryInterface
+class ArrayRdvRepository implements RDVRepositoryInterface
 {
     private array $rdvs = [];
 

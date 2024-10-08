@@ -2,7 +2,7 @@
 
 namespace toubeelib\core\dto;
 
-class InputRdvDTO {
+class InputRDVDTO {
     public bool $newPatient;
     public bool $type;
     public bool $isConfirmed;

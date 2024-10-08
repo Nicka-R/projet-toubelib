@@ -3,7 +3,7 @@ namespace toubeelib\core\repositoryInterfaces;
 
 use toubeelib\core\domain\entities\rdv\RendezVous;
 
-interface RdvRepositoryInterface
+interface RDVRepositoryInterface
 {
     const RDV_ANNULE = -1;
     const RDV_PREVU = 0;

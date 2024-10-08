@@ -7,7 +7,7 @@ use toubeelib\core\domain\entities\praticien\Praticien;
 use toubeelib\core\dto\PraticienDTO;
 use toubeelib\core\dto\SpecialiteDTO; 
 
-class RendezVousDTO
+class RDVDTO
 {
     private string $id;
     private string $praticienID;
