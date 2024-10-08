@@ -29,7 +29,7 @@ try {
         'p3', // praticien_id
         'pa1', // patient_id
         'C', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-02 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-25 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed

@@ -59,17 +59,17 @@ class ArrayRdvRepository implements RDVRepositoryInterface
         return $rdvs;
     }
 
-    public function save(RendezVous $rdv): RDVDTO{
+    public function save(RendezVous $rdv): string{
         $id = Uuid::uuid4()->toString();
         $rdv->setID($id);
         $this->rdvs[$id] = $rdv;
-        return $rdv->toDTO();
+        return $id;
     }
 
-    public function update(RendezVous $rdv): RDVDTO {        
+    public function update(RendezVous $rdv): string {        
         if (isset($this->rdvs[$rdv->getID()])) {            
             $this->rdvs[$rdv->getID()] = $rdv;
-            return $rdv->toDTO();
+            return $rdv->getId();
         }
     }
   

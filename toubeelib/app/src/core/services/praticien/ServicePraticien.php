@@ -32,6 +32,7 @@ class ServicePraticien implements ServicePraticienInterface
         try {
             $specialite = $this->praticienRepository->getSpecialiteById($p->specialite);
             $praticien->setSpecialite($specialite);
+            $this->praticienRepository->save($praticien);
         } catch(RepositoryEntityNotFoundException $e) {
             throw new ServicePraticienInvalidDataException('Specialite introuvable');
         }

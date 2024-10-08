@@ -1,15 +1,13 @@
 <?php
-
 namespace toubeelib\core\repositoryInterfaces;
 
 use toubeelib\core\domain\entities\rdv\RendezVous;
-use toubeelib\core\dto\RDVDTO;
 
 interface RDVRepositoryInterface
 {
-    public function getRDVs(): array;
-    public function getRDVById(string $id): RendezVous;
-    public function save(RendezVous $rdv): RDVDTO;
-    public function update(RendezVous $rdv): RDVDTO;
-
+    const RDV_ANNULE = -1;
+    const RDV_PREVU = 0;
+    const RDV_EFFECTUE = 1;
+    // public function save(RendezVous $rdv): string;
+    public function getRendezVousById(string $id): RendezVous;
 }

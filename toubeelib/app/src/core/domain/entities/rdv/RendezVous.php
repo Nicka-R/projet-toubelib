@@ -150,7 +150,7 @@ class RendezVous extends Entity
         return $this->status === self::RDV_ANNULE;
     }
 
-    public function toDTO(PraticienDto $praticienDTO) : RDVDTO
+    public function toDTO(PraticienDTO $praticienDTO) : RDVDTO
     {
         return new RDVDTO($this, $praticienDTO);	
     }
