@@ -4,7 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $ServiceRDV = new \toubeelib\core\services\rdv\ServiceRDV(
     new \toubeelib\infrastructure\repositories\ArrayRdvRepository(),
     new \toubeelib\core\services\praticien\ServicePraticien(new \toubeelib\infrastructure\repositories\ArrayPraticienRepository()),
-    new \Monolog\Logger('toubeelib', [new \Monolog\Handler\StreamHandler(__DIR__ . '/../logs/toubeelib.log', \Monolog\Logger::DEBUG)])
+    new \Monolog\Logger('toubeelib', [new \Monolog\Handler\StreamHandler(__DIR__ . '/../logs/toubeelib.log', \Monolog\Logger::DEBUG)]),
+    new \toubeelib\core\services\patient\ServicePatient(new \toubeelib\infrastructure\repositories\ArrayPatientRepository())
+
 );
 
 //créer un rdv à aprtir d'un InputRDVDTO
