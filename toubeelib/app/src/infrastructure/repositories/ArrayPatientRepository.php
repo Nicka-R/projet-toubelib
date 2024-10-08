@@ -4,7 +4,6 @@ namespace toubeelib\infrastructure\repositories;
 
 use Ramsey\Uuid\Uuid;
 use toubeelib\core\domain\entities\patient\Patient;
-use toubeelib\core\domain\entities\patient\Specialite;
 use toubeelib\core\repositoryInterfaces\PatientRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 
@@ -36,7 +35,6 @@ class ArrayPatientRepository implements PatientRepositoryInterface
     {
         $patient = $this->patients[$id] ??
             throw new RepositoryEntityNotFoundException("Patient $id not found");
-
         return $patient;
     }
 }

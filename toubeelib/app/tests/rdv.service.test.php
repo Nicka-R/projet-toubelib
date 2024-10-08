@@ -127,6 +127,8 @@ try {
     echo $e->getMessage();
 } catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {
     echo $e->getMessage();
+} catch (\toubeelib\core\services\praticien\ServicePatientInvalidDataException $e) {
+    echo $e->getMessage();
 }catch(\Exception $e){
     echo $e->getMessage();
 }

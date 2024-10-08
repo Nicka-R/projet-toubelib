@@ -8,7 +8,7 @@ use toubeelib\core\services\rdv\ServiceRDVInterface;
 use toubeelib\core\services\praticien\ServicePraticienInterface;
 use toubeelib\core\services\rdv\ServiceRDVNotFoundException;
 use toubeelib\core\dto\InputRDVDTO;
-use toubeelib\core\domain\entities\rdv\RendezVous;
+use toubeelib\core\services\patient\ServicePatientInterface;
 use toubeelib\core\dto\SpecialiteDTO;
 use toubeelib\core\domain\entities\praticien\Specialite;
 use toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException;
@@ -27,12 +27,14 @@ class ServiceRDV implements ServiceRDVInterface
 
     private RDVRepositoryInterface $rdvRepository;
     private ServicePraticienInterface $servicePraticien;
+    private ServicePatientInterface $servicePatient;
 
     public function __construct(RDVRepositoryInterface $rdvRepository, ServicePraticienInterface $servicePraticien, LoggerInterface $logger)
     {
         $this->rdvRepository = $rdvRepository;
         $this->servicePraticien = $servicePraticien;
         $this->logger = $logger;
+        $this->servicePatient = $servicePatient;
     }
 
     public function getRDVs(): array
@@ -45,7 +47,7 @@ class ServiceRDV implements ServiceRDVInterface
         try {
             $rendezVous = $this->rdvRepository->getRendezVousById($id);
             $praticienDTO = $this->servicePraticien->getPraticienById($rendezVous->getPraticienID());
-            return new RDVDTO($rendezVous, $praticienDTO);
+            return new RendezVousDTO($rendezVous, $praticienDTO);
         } catch (RepositoryEntityNotFoundException $e) {
             throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
         }
@@ -66,6 +68,11 @@ class ServiceRDV implements ServiceRDVInterface
             //vérifier que le praticien soit disponible
             if (!$this->isPraticienAvailable($inputRDV->praticien_id, $inputRDV->date)) {
                 throw new ServiceRendezVousInvalidDataException('Praticien non disponible');
+            }
+            $patientDTO = $this->servicePatient->getPatientById($inputRDV->patient_id);
+            //vérifier que le patient soit disponible
+            if (!$this->isPatientAvailable($inputRDV->patient_id, $inputRDV->date)) {
+                throw new ServiceRendezVousInvalidDataException('Patient non disponible');
             }
             $specialiteDTO = $this->getSpecialiteById($inputRDV->specialite_id);
             if (!$specialiteDTO) {
@@ -130,7 +137,18 @@ class ServiceRDV implements ServiceRDVInterface
         
         return empty($rendezVous);
     }
-
+ /**
+     * vérifie la disponibilité d'un praticien à une date donnée
+     * @param string $praticien_id
+     * @param \DateTimeImmutable $date
+     * @return bool
+     */
+    public function isPatientAvailable(string $patient_id, \DateTimeImmutable $date): bool
+    {
+        $rendezVous = $this->rdvRepository->getRendezVousByPatientAndDate($patient_id, $date);
+        
+        return empty($rendezVous);
+    }
     /**
      * fonction qui permet de vérifier que les spécialités du praticien correspondent à celles du rendez-vous
      * @param string $praticienId l'ID du praticien
@@ -395,6 +413,95 @@ class ServiceRDV implements ServiceRDVInterface
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
             throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+        }
+    }
+// to change for patient
+public function listerRendezVousPatient(string $patient_id, \DateTimeInterface $dateDebut, int $nbJours): array
+    {
+        try{
+            $patient = $this->servicePatient->getPatientById($patient_id);
+        }catch(ServicePatientInvalidDataException $e){
+            throw new ServiceRendezVousInvalidDataException('Invalid Patient ID');
+        }
+        if ($nbJours < 1) {
+            throw new ServiceRendezVousInvalidDataException('Invalid number of days');
+        }
+        $premier_rdv = $dateDebut->modify('08:00');
+        $dernier_rdv = $dateDebut->modify('+'. $nbJours-1 . ' days')->modify('23:59');
+        $liste_rdv = $this->rdvRepository->getRendezVousPatient($patient_id, $premier_rdv, $dernier_rdv);
+        return array_map(function($rdv){
+            $patientDTO = $this->servicePatient->getPatientById($rdv->getPatientID());
+            $rdv_dto = $rdv->toDTO($patientDTO);
+            
+            $rdv_dto->setPatient($patientDTO);
+            return $rdv_dto;
+        }, $liste_rdv);
+
+    }
+//a faire
+    public function listerDisposPatient($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
+        try {
+            $praticien = $this->servicePraticien->getPraticienById($praticien_id);
+            $rdvs = $this->rdvRepository->getRendezVousPraticien($praticien_id, $from, $to);
+            
+            // liste des dispo
+            $dispos = [];
+
+            // trouver les créneaux où il n'a pas de rendez-vous 
+            $date = $from;
+            while ($date <= $to) {
+                $jour = $date->format('N');
+                $heure = $date->format('H:i');
+
+                // Vérifier si c'est un jour de consultation
+                if (in_array($jour, self::JOURS_CONSULTATION)) {
+                    // si c'est le matin on affiche les créneaux de 9h jusqu'au nombre de rdv matin
+                    if ($heure == self::HEURE_DEBUT_CONSULTATION_MATIN) {
+                        $nbRdv = 0;
+                        while ($nbRdv < self::NB_RDV_MATIN) {
+                            $isFree = true;
+                            foreach ($rdvs as $rdv) {
+                                if ($rdv->getDate() == $date) {
+                                    $isFree = false;
+                                    break;
+                                }
+                            }
+                            if ($isFree) {
+                                $dispos[] = $date;
+                            }
+                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                            $nbRdv++;
+                        }
+                    }
+                    // si c'est l'après-midi on affiche les créneaux de 14h jusqu'au nombre de rdv aprem
+                    if ($heure == self::HEURE_DEBUT_CONSULTATION_APREM) {
+                        $nbRdv = 0;
+                        // on vérifie que la date soit inférieure à la date donnée
+                        while ($nbRdv < self::NB_RDV_APREM && $date <= $to) {
+                            $isFree = true;
+                            foreach ($rdvs as $rdv) {
+                                if ($rdv->getDate() == $date) {
+                                    $isFree = false;
+                                    break;
+                                }
+                            }
+                            if ($isFree) {
+                                $dispos[] = $date;
+                            }
+                            $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+                            $nbRdv++;
+                        }
+                    }
+                }
+
+                // Ajouter 30 minutes au créneau actuel
+                $date = $date->add(new \DateInterval('PT' . self::DUREE_RDV . 'M'));
+            }
+
+            return $dispos;
+
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
         }
     }
 }
