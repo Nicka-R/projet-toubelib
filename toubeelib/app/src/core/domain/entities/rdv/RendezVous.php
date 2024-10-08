@@ -27,7 +27,7 @@ class RendezVous extends Entity
 
     // protected ?Specialite $specialite = null;
 
-    public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date) // bool $type, bool $newPatient)
+    public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date)
     {
         $this->praticienID = $praticien;
         $this->patientID = $patient;
