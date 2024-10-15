@@ -10,6 +10,10 @@ use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use toubeelib\core\services\praticien\ServicePraticien;
 use toubeelib\core\services\praticien\ServicePraticienInterface;
+use toubeelib\core\services\auth\AuthService;
+use toubeelib\core\services\auth\AuthServiceInterface;
+use toubeelib\core\services\auth\AuthProvider;
+use toubeelib\infrastructure\PDO\PdoUserRepository;
 use app\middlewares\Cors;
 use Slim\App;
 
@@ -17,6 +21,14 @@ return [
 
     'praticien.pdo' => function (ContainerInterface $container) {
         $config = parse_ini_file(__DIR__ . '/praticien.db.ini');
+        $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']}";
+        $user = $config['username'];
+        $password = $config['password'];
+        return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+    },
+
+    'auth.pdo' => function (ContainerInterface $container) {
+        $config = parse_ini_file(__DIR__ . '/auth.db.ini');
         $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']}";
         $user = $config['username'];
         $password = $config['password'];
@@ -48,6 +60,26 @@ return [
     ServicePraticienInterface::class => function (ContainerInterface $container) {
         $praticienRepository = $container->get(PraticienRepositoryInterface::class);
         return new ServicePraticien($praticienRepository);
+    },
+
+    UserRepositoryInterface::class => function (ContainerInterface $container) {
+        $pdo = $container->get('auth.pdo');
+        return new PdoUserRepository($pdo);
+    },
+
+    AuthServiceInterface::class => function (ContainerInterface $container) {
+        $userRepository = $container->get(UserRepositoryInterface::class);
+        return new AuthService($userRepository);
+    },
+
+    AuthService::class => function (ContainerInterface $container) {
+        $userRepository = $container->get(UserRepositoryInterface::class);
+        return new AuthService($userRepository);
+    },
+
+    AuthProvider::class => function (ContainerInterface $container) {
+        $authService = $container->get(AuthService::class);
+        return new AuthProvider($authService);
     },
     
     // enregistrement du middleware CORS

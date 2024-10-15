@@ -6,7 +6,7 @@ use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use PDOException;
 use PDO;
 
-class PdoPraticienRepository implements RDVRepositoryInterface
+class PdoRDVRepository implements RDVRepositoryInterface
 {
     private PDO $pdo;
 
@@ -29,7 +29,7 @@ class PdoPraticienRepository implements RDVRepositoryInterface
 
 
         
-    public function getRDVById(string $id): RendezVous;
+    public function getRendezVousById(string $id): RendezVous;
     public function save(RendezVous $rdv): RDVDTO;
     public function update(RendezVous $rdv): RDVDTO;
     
