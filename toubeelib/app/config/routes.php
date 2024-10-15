@@ -8,6 +8,7 @@ use \toubeelib\application\actions\ModifierRDVAction;
 use \toubeelib\application\actions\RDVbyIDAction;
 use \toubeelib\application\actions\HomeAction;
 use \toubeelib\application\actions\PraticienbyIDAction;
+use \toubeelib\application\actions\AuthAction;
 use \app\middlewares\Cors;
 
 
@@ -22,6 +23,10 @@ return function(App $app): App {
     $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class)->setName('modifierRDV');
 
     $app->get('/praticiens/{id}', PraticienbyIDAction::class)->setName('praticienById');
+
+    $app->get('/auth/signin', AuthAction::class)->setName('authSignin');
+
+    $app->post('/auth/signin', AuthAction::class)->setName('authSignin');
 
     $app->options('/{routes:.+}', function (Request $request, Response $response) {
         return $response;

@@ -19,6 +19,8 @@ $containerBuilder->addDefinitions(__DIR__ . '/../config/dependencies.php');
 $container = $containerBuilder->build();
 
 try {
+    //il faut mettre le host à localhost pour les tests sinon toubeelib.db
+    
     // Récupérer l'objet PDO à partir du conteneur de dépendances
     $pdo = $container->get('auth.pdo');
     echo "Connexion à la base de données réussie.\n";
