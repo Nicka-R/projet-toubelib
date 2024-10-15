@@ -10,6 +10,8 @@ use Psr\Log\LoggerInterface;
 use Monolog\Logger;
 use toubeelib\core\services\praticien\ServicePraticien;
 use toubeelib\core\services\praticien\ServicePraticienInterface;
+use app\middlewares\Cors;
+use Slim\App;
 
 return [
 
@@ -46,7 +48,11 @@ return [
     ServicePraticienInterface::class => function (ContainerInterface $container) {
         $praticienRepository = $container->get(PraticienRepositoryInterface::class);
         return new ServicePraticien($praticienRepository);
-    }
+    },
     
+    // enregistrement du middleware CORS
+    Cors::class => function (ContainerInterface $container) {
+        return new Cors();
+    },
 
 ];

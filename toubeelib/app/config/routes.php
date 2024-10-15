@@ -8,17 +8,27 @@ use \toubeelib\application\actions\ModifierRDVAction;
 use \toubeelib\application\actions\RDVbyIDAction;
 use \toubeelib\application\actions\HomeAction;
 use \toubeelib\application\actions\PraticienbyIDAction;
+use \app\middlewares\Cors;
+
+
 
 return function(App $app): App {
+    $app->add(Cors::class);
 
-    $app->get('/', HomeAction::class);
+    $app->get('/', HomeAction::class)->setName('home');
 
-    $app->get('/rdvs/{id}', RDVbyIDAction::class);
+    $app->get('/rdvs/{id}', RDVbyIDAction::class)->setName('rdvById');
 
-    $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class);
+    $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class)->setName('modifierRDV');
 
-    $app->get('/praticiens/{id}', PraticienbyIDAction::class);
+    $app->get('/praticiens/{id}', PraticienbyIDAction::class)->setName('praticienById');
 
+    $app->options('/{routes:.+}', function (Request $request, Response $response) {
+        return $response;
+    })->add(function (Request $request, RequestHandler $handler) {
+        $cors = new Cors();
+        return $cors->corsHeaders($request, $handler);
+    });
 
     return $app;
 };
