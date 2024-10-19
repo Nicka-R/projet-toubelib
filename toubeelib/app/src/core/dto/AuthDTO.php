@@ -3,12 +3,12 @@
 namespace toubeelib\core\dto;
 
 class AuthDTO extends DTO {
-    private string $id;
-    private string $email;
-    private string $hashed_password;
-    private int $role;
-    private string $accessToken;
-    private string $refreshToken;
+    protected string $id;
+    protected string $email;
+    protected string $hashed_password;
+    protected int $role;
+    protected string $accessToken;
+    protected string $refreshToken;
 
     public function __construct(string $id, string $email, string $hashed_password, int $role, string $accessToken = '', string $refreshToken = '') {
         $this->id = $id;

@@ -10,11 +10,13 @@ use \toubeelib\application\actions\HomeAction;
 use \toubeelib\application\actions\PraticienbyIDAction;
 use \toubeelib\application\actions\AuthAction;
 use \app\middlewares\Cors;
+use \app\middlewares\CheckJwtToken;	
 
 
 
 return function(App $app): App {
     $app->add(Cors::class);
+    $app->add(CheckJwtToken::class);
 
     $app->get('/', HomeAction::class)->setName('home');
 

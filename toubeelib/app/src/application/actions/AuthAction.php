@@ -3,16 +3,16 @@ namespace toubeelib\application\actions;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use toubeelib\core\services\auth\AuthProvider;
-use toubeelib\core\dto\InputAuthDTO;
+use app\providers\auth\JwtAuthProvider;
+use toubeelib\core\dto\CredentialsDTO;
 use toubeelib\core\services\auth\AuthenticationException;
 use Slim\Psr7\Response as SlimResponse;
 
 class AuthAction extends AbstractAction {
-    private AuthProvider $authProvider;
+    private JwtAuthProvider $JwtAuthProvider;
 
-    public function __construct(AuthProvider $authProvider) {
-        $this->authProvider = $authProvider;
+    public function __construct(JwtAuthProvider $JwtAuthProvider) {
+        $this->JwtAuthProvider = $JwtAuthProvider;
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response {
@@ -27,8 +27,8 @@ class AuthAction extends AbstractAction {
         }
 
         try {
-            $authDTO = new InputAuthDTO($data['email'], $data['password']);
-            $authToken = $this->authProvider->signin($authDTO);
+            $authDTO = new CredentialsDTO($data['email'], $data['password']);
+            $authToken = $this->JwtAuthProvider->signin($authDTO);
 
             $responseData = [
                 'accessToken' => $authToken->getAccessToken(),

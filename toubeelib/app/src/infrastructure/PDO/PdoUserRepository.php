@@ -2,6 +2,7 @@
 namespace toubeelib\infrastructure\PDO;
 
 use toubeelib\core\repositoryInterfaces\UserRepositoryInterface;
+use toubeelib\core\dto\CredentialsDTO;
 use toubeelib\core\dto\AuthDTO;
 use PDO;
 
@@ -20,5 +21,20 @@ class PdoUserRepository implements UserRepositoryInterface {
             return new AuthDTO($row['id'], $row['email'], $row['password'], $row['role']);
         }
         return null;
+    }
+
+    /**
+     * enregistre un utilisateur
+     * @param CredentialsDTO $credentials
+     * @param int $role
+     */
+
+    public function save(CredentialsDTO $credentials, int $role): void {
+        $stmt = $this->pdo->prepare('INSERT INTO users (email, password, role) VALUES (:email, :password, :role)');
+        $stmt->execute([
+            'email' => $credentials->getEmail(),
+            'password' => password_hash($credentials->getPassword(), PASSWORD_DEFAULT),
+            'role' => $role
+        ]);
     }
 }

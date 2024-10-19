@@ -63,4 +63,3 @@ $period = new DatePeriod($d1, $interval, $d2, DatePeriod::EXCLUDE_START_DATE); /
 foreach ($period as $date) {
     print $date->format('l d/m/Y H:i') . PHP_EOL;
 }
-

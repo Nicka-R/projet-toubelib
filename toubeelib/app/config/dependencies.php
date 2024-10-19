@@ -12,9 +12,10 @@ use toubeelib\core\services\praticien\ServicePraticien;
 use toubeelib\core\services\praticien\ServicePraticienInterface;
 use toubeelib\core\services\auth\AuthService;
 use toubeelib\core\services\auth\AuthServiceInterface;
-use toubeelib\core\services\auth\AuthProvider;
+use app\providers\auth\JwtAuthProvider;
 use toubeelib\infrastructure\PDO\PdoUserRepository;
 use app\middlewares\Cors;
+use app\middlewares\CheckJwtToken;
 use Slim\App;
 
 return [
@@ -34,6 +35,8 @@ return [
         $password = $config['password'];
         return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     },
+
+
 
     PraticienRepositoryInterface::class => function (ContainerInterface $container) {
         $pdo = $container->get('praticien.pdo');
@@ -77,14 +80,20 @@ return [
         return new AuthService($userRepository);
     },
 
-    AuthProvider::class => function (ContainerInterface $container) {
+    JwtAuthProvider::class => function (ContainerInterface $container) {
         $authService = $container->get(AuthService::class);
-        return new AuthProvider($authService);
+        return new JwtAuthProvider($authService, $container->get(UserRepositoryInterface::class));
     },
     
     // enregistrement du middleware CORS
     Cors::class => function (ContainerInterface $container) {
         return new Cors();
+    },
+
+    CheckJwtToken::class => function (ContainerInterface $container) {
+        $config = include __DIR__ . '/config.php';
+        $jwtSecret = $config['jwt']['secret'];
+        return new CheckJwtToken($jwtSecret);
     },
 
 ];
