@@ -22,12 +22,12 @@ class PraticienbyIDAction extends AbstractAction
         try {
             $praticienDto = $this->servicePraticien->getPraticienById($id);
             $responseData = [
-                'self' => "/praticiens/{$praticienDto->getId()}",
-                'nom' => $praticienDto->getNom(),
-                'prenom' => $praticienDto->getPrenom(),
-                'adresse' => $praticienDto->getAdresse(),
-                'tel' => $praticienDto->getTel(),
-                'specialite' => $praticienDto->getSpecialite()
+                'self' => "/praticiens/{$praticienDto->ID}",
+                'nom' => $praticienDto->nom,
+                'prenom' => $praticienDto->prenom,
+                'adresse' => $praticienDto->adresse,
+                'tel' => $praticienDto->tel,
+                'specialite' => $praticienDto->specialite_label
             ];
             return JsonRenderer::render($rs, 200, $responseData);
 
