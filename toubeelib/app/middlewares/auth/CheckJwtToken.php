@@ -1,5 +1,5 @@
 <?php
-namespace app\middlewares;
+namespace app\middlewares\auth;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use toubeelib\core\dto\AuthDTO;
+use Slim\Exception\HttpUnauthorizedException;
 
 class CheckJwtToken
 {
@@ -33,7 +34,7 @@ class CheckJwtToken
             throw new HttpUnauthorizedException($request, 'Invalid JWT token');
         }
 
-        $authDto = new AuthDto($decoded->id, $decoded->email, $decoded->role);
+        $authDto = new AuthDto($decoded->sub, $decoded->email, null, $decoded->role);
         $request = $request->withAttribute('auth', $authDto);
 
         $response = $next->handle($request);

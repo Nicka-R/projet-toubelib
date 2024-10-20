@@ -14,8 +14,8 @@ use toubeelib\core\services\auth\AuthService;
 use toubeelib\core\services\auth\AuthServiceInterface;
 use app\providers\auth\JwtAuthProvider;
 use toubeelib\infrastructure\PDO\PdoUserRepository;
-use app\middlewares\Cors;
-use app\middlewares\CheckJwtToken;
+use app\middlewares\cors\Cors;
+use app\middlewares\auth\CheckJwtToken;
 use Slim\App;
 
 return [

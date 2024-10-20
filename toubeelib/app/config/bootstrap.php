@@ -2,8 +2,8 @@
 
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
-use app\middlewares\Cors;
-use app\middlewares\AddHeaders;
+use app\middlewares\cors\Cors;
+use app\middlewares\cors\AddHeaders;
 
 
 
