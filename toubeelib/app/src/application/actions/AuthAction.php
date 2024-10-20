@@ -36,6 +36,8 @@ class AuthAction extends AbstractAction {
             ];
 
             $response->getBody()->write(json_encode($responseData));
+            $request = $request->withAttribute('jwt', $authToken->getAccessToken());
+            $response = $response->withHeader('Authorization', 'Bearer ' . $authToken->getAccessToken());
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (AuthenticationException $e) {
             return $this->respondWithError($response, 'Invalid credentials', 401);

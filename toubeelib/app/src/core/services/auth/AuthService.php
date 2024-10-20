@@ -17,9 +17,9 @@ class AuthService implements AuthServiceInterface
 
     public function authenticate(CredentialsDTO $authDTO): AuthDTO
     {
-        $user = $this->userRepository->findByEmail($authDTO->getEmail());
+        $user = $this->userRepository->findByEmail($authDTO->email);
 
-        if (!$user || !password_verify($authDTO->getPassword(), $user->getHashedPassword())) {
+        if (!$user || !password_verify($authDTO->hashed_password, $user->getHashedPassword())) {
             throw new AuthenticationException('Invalid credentials');
         }
 
