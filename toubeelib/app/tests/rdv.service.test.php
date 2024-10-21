@@ -123,7 +123,7 @@ try {
     $rdv6 = $ServiceRDV -> modifierRDV($rdv6->getId(), 'B', 'pa1');
     $rdv6 = $ServiceRDV -> payerRDV($rdv6->getId());  
     print_r($rdv6);
-} catch (\toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException $e) {
+} catch (\toubeelib\core\services\rdv\ServiceRDVInvalidDataException $e) {
     echo $e->getMessage();
 } catch (\toubeelib\core\services\praticien\ServicePraticienInvalidDataException $e) {
     echo $e->getMessage();

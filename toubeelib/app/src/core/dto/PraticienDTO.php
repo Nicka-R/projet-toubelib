@@ -30,4 +30,8 @@ class PraticienDTO extends DTO
         return $p;
     }
 
+    public function getID(): string
+    {
+        return $this->ID;
+    }
 }

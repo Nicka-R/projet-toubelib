@@ -19,7 +19,7 @@ class RDVDTO
     private string $specialiteID;
     private string $specialiteLabel;
 
-    public function __construct(RendezVous $rendezVous, PraticienDTO $praticien)
+    public function __construct(RendezVous $rendezVous)
     {
         $this->id = $rendezVous->getID();
         $this->praticienID = $rendezVous->getPraticienID();

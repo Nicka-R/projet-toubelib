@@ -4,6 +4,7 @@ use toubeelib\core\services\rdv\ServiceRDVInterface;
 use toubeelib\core\services\rdv\ServiceRDV;
 use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\PraticienRepositoryInterface;
+use toubeelib\core\repositoryInterfaces\UserRepositoryInterface;
 use toubeelib\infrastructure\PDO\PdoPraticienRepository;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;

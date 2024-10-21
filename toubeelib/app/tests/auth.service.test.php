@@ -24,9 +24,9 @@ try {
     // Récupérer l'objet PDO à partir du conteneur de dépendances
     $pdo = $container->get('auth.pdo');
     echo "Connexion à la base de données réussie.\n";
-
+    $userRepository = new PdoUserRepository($pdo);
     $authService = new AuthService(new PdoUserRepository($pdo));
-    $JwtAuthProvider = new JwtAuthProvider($authService);
+    $JwtAuthProvider = new JwtAuthProvider($authService, $userRepository);
 
     // Test de la fonction authenticate
     try {

@@ -18,8 +18,8 @@ class AuthService implements AuthServiceInterface
     public function authenticate(CredentialsDTO $authDTO): AuthDTO
     {
         $user = $this->userRepository->findByEmail($authDTO->email);
-
-        if (!$user || !password_verify($authDTO->hashed_password, $user->getHashedPassword())) {
+        // il faut utiliser le password en clair et non le hash
+        if (!$user || !password_verify($authDTO->password, $user->getHashedPassword())) {
             throw new AuthenticationException('Invalid credentials');
         }
 

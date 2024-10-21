@@ -24,6 +24,7 @@ class RendezVous extends Entity
     protected int $status= self::RDV_PREVU; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
     protected string $specialiteID;
     protected int $duree = 30; 
+    protected Specialite $specialite;
 
     // protected ?Specialite $specialite = null;
 

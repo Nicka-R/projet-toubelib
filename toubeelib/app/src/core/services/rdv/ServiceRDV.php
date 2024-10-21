@@ -6,12 +6,13 @@ use toubeelib\core\repositoryInterfaces\RDVRepositoryInterface;
 use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 use toubeelib\core\services\rdv\ServiceRDVInterface;
 use toubeelib\core\services\praticien\ServicePraticienInterface;
+use toubeelib\core\services\praticien\ServicePraticienInvalidDataException;
 use toubeelib\core\services\rdv\ServiceRDVNotFoundException;
 use toubeelib\core\dto\InputRDVDTO;
 use toubeelib\core\domain\entities\rdv\RendezVous;
 use toubeelib\core\dto\SpecialiteDTO;
 use toubeelib\core\domain\entities\praticien\Specialite;
-use toubeelib\core\services\rdv\ServiceRendezVousInvalidDataException;
+use toubeelib\core\services\rdv\ServiceRDVInvalidDataException;
 use Ramsey\Uuid\Uuid;
 use Psr\Log\LoggerInterface;
 
@@ -27,6 +28,7 @@ class ServiceRDV implements ServiceRDVInterface
 
     private RDVRepositoryInterface $rdvRepository;
     private ServicePraticienInterface $servicePraticien;
+    private LoggerInterface $logger;
 
     public function __construct(RDVRepositoryInterface $rdvRepository, ServicePraticienInterface $servicePraticien, LoggerInterface $logger)
     {
@@ -47,14 +49,14 @@ class ServiceRDV implements ServiceRDVInterface
             $praticienDTO = $this->servicePraticien->getPraticienById($rendezVous->getPraticienID());
             return new RDVDTO($rendezVous, $praticienDTO);
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
 
     /** 
      * fonction permettant de créer un rendez-vous avec les données fournies dans le DTO
      * @param InputRDVDTO $inputRDV les données du rendez-vous
-     * @throws ServiceRendezVousInvalidDataException si les données du rendez-vous ne sont pas valides
+     * @throws ServiceRDVInvalidDataException si les données du rendez-vous ne sont pas valides
      * @return RDVDTO
      */
 
@@ -65,17 +67,17 @@ class ServiceRDV implements ServiceRDVInterface
             $praticienDTO = $this->servicePraticien->getPraticienById($inputRDV->praticien_id);
             //vérifier que le praticien soit disponible
             if (!$this->isPraticienAvailable($inputRDV->praticien_id, $inputRDV->date)) {
-                throw new ServiceRendezVousInvalidDataException('Praticien non disponible');
+                throw new ServiceRDVInvalidDataException('Praticien non disponible');
             }
             $specialiteDTO = $this->getSpecialiteById($inputRDV->specialite_id);
             if (!$specialiteDTO) {
-                throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
+                throw new ServiceRDVInvalidDataException('Invalid Specialite ID');
             }
 
             //vérifier que les spécialités du praticien correspondent à celles du rendez-vous
             // echo "specialite du rendez-vous : ".$inputRDV->specialite_id."\n";
             if (!$this->checkPraticienSpecialites($inputRDV->praticien_id, $inputRDV->specialite_id)) {
-                throw new ServiceRendezVousInvalidDataException('Praticien ne possède pas la spécialité requise');
+                throw new ServiceRDVInvalidDataException('Praticien ne possède pas la spécialité requise');
             }
 
             //générer un UUID pour le rendez-vous
@@ -96,10 +98,10 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous créé', ['id' => $rendezVous->getId()]);
 
             return new RDVDTO($rendezVous, $praticienDTO);
-        }catch(ServiceRendezVousInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException($e->getMessage());
+        }catch(ServiceRDVInvalidDataException $e){
+            throw new ServiceRDVInvalidDataException($e->getMessage());
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException($e->getMessage());
+            throw new ServiceRDVInvalidDataException($e->getMessage());
         }
     }
 
@@ -114,7 +116,7 @@ class ServiceRDV implements ServiceRDVInterface
             $specialite = $this->servicePraticien->getSpecialiteById($id);
             return $specialite;
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid Specialite ID');
+            throw new ServiceRDVInvalidDataException('Invalid Specialite ID');
         }
     }
 
@@ -157,14 +159,14 @@ class ServiceRDV implements ServiceRDVInterface
     /**
      * fonction qui permet d'annuler un rendez-vous en modifiant son statut
      * @param string $id l'ID du rendez-vous
-     * @throws ServiceRendezVousInvalidDataException si l'ID n'est pas valide
+     * @throws ServiceRDVInvalidDataException si l'ID n'est pas valide
      * @return RDVDTO
      */
     public function annulerRendezVous(string $id): void{
         try {
             $rdv = $this->rdvRepository->getRendezVousById($id);
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
         $rdv->annuler();
         $this->rdvRepository->save($rdv);
@@ -184,10 +186,10 @@ class ServiceRDV implements ServiceRDVInterface
         try{
             $praticien = $this->servicePraticien->getPraticienById($praticien_id);
         }catch(ServicePraticienInvalidDataException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
+            throw new ServiceRDVInvalidDataException('Invalid Praticien ID');
         }
         if ($nbJours < 1) {
-            throw new ServiceRendezVousInvalidDataException('Invalid number of days');
+            throw new ServiceRDVInvalidDataException('Invalid number of days');
         }
         $premier_rdv = $dateDebut->modify('08:00');
         $dernier_rdv = $dateDebut->modify('+'. $nbJours-1 . ' days')->modify('23:59');
@@ -209,7 +211,7 @@ class ServiceRDV implements ServiceRDVInterface
      * @param string $praticien_id
      * @param \DateTimeImmutable $date
      * @return array tableau des disponibilités
-     * @throws ServiceRendezVousInvalidDataException si l'ID du praticien n'est pas valide
+     * @throws ServiceRDVInvalidDataException si l'ID du praticien n'est pas valide
      */
     public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to) {
         try {
@@ -273,7 +275,7 @@ class ServiceRDV implements ServiceRDVInterface
             return $dispos;
 
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRendezVousInvalidDataException('Invalid Praticien ID');
+            throw new ServiceRDVInvalidDataException('Invalid Praticien ID');
         }
     }
 
@@ -294,7 +296,7 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous modifié', ['id' => $rdv->getId()]);
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
 
@@ -354,7 +356,7 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous transmis', ['id' => $rdv->getId()]);
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
 
@@ -367,7 +369,7 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous honoré', ['id' => $rdv->getId()]);
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
 
@@ -380,7 +382,7 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous non honoré', ['id' => $rdv->getId()]);
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
             
         }
     }
@@ -394,7 +396,7 @@ class ServiceRDV implements ServiceRDVInterface
             $this->logger->info('Rendez-vous payé', ['id' => $rdv->getId()]);
             return new RDVDTO($rdv, $praticienDTO);
         }catch(RepositoryEntityNotFoundException $e){
-            throw new ServiceRendezVousInvalidDataException('Invalid RendezVous ID');
+            throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
 }
