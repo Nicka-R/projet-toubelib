@@ -103,4 +103,18 @@ class PdoRDVRepository implements RDVRepositoryInterface
             throw new RepositoryEntityNotFoundException($e->getMessage());
         }
     }
+
+    public function getRendezVousByPatientID(string $patient_id): array {
+        try {
+            $stmt = $this->pdo->prepare('SELECT * FROM rdv WHERE patient_id = :patient_id');
+            $stmt->execute(['patient_id' => $patient_id]);
+            $rdvs = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rdvs[] = new RDVDTO($row);
+            }
+            return $rdvs;
+        } catch (PDOException $e) {
+            throw new RepositoryEntityNotFoundException($e->getMessage());
+        }
+    }
 }

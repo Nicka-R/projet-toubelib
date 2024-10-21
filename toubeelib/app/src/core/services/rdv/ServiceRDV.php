@@ -399,5 +399,19 @@ class ServiceRDV implements ServiceRDVInterface
             throw new ServiceRDVInvalidDataException('Invalid RendezVous ID');
         }
     }
+
+    public function getRDVbyPatientID(string $id): array {
+        try {
+            $rdvs = $this->rdvRepository->getRendezVousByPatientID($id);
+            $rdvsDTO = [];
+            foreach ($rdvs as $rdv) {
+                $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
+                $rdvsDTO[] = new RDVDTO($rdv, $praticienDTO);
+            }
+            return $rdvsDTO;
+        } catch (RepositoryEntityNotFoundException $e) {
+            throw new ServiceRDVInvalidDataException('Invalid Patient ID');
+        }
+    }
 }
 

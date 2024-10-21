@@ -16,6 +16,7 @@ interface ServiceRDVInterface
     public function getRendezVousById(string $id): RDVDTO;
     public function creerRendezVous(InputRDVDTO $inputRDV): RDVDTO;
     public function getSpecialiteById(string $id): SpecialiteDTO;
+    public function getRDVbyPatientID(string $id): array;
     public function isPraticienAvailable(string $praticien_id, \DateTimeImmutable $date): bool;
     public function checkPraticienSpecialites(string $praticienId, string $specialite): bool;
     public function listerDisposPraticien($praticien_id, \DateTimeImmutable $from, \DateTimeImmutable $to);

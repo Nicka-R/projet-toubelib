@@ -12,6 +12,7 @@ use toubeelib\application\actions\ModifierRDVAction;
 use toubeelib\application\actions\PraticienbyIDAction;
 use toubeelib\application\actions\CreerRDVAction;
 use toubeelib\application\actions\AuthAction;
+use toubeelib\application\actions\RDVbyPatientIDAction;
 use app\middlewares\cors\Cors;
 
 return function(App $app): App {
@@ -27,6 +28,7 @@ return function(App $app): App {
     $app->post('/rdvs/new', CreerRDVAction::class)->setName('newRDV');
     $app->get('/rdvs/{id}', RDVbyIDAction::class)->setName('rdvById');
     $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class)->setName('modifierRDV');
+    $app->get('/rdvs/patient/{id}', RDVbyPatientIDAction::class)->setName('rdvByPatientId');
 
     // Practiciens
     $app->get('/praticiens/{id}', PraticienbyIDAction::class)->setName('praticienById')->add(CheckJwtToken::class);
