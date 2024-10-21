@@ -41,7 +41,7 @@ class ModifierRDVAction extends AbstractAction
             $responseData = [
                 'self' => '/rdv/' . $id,
                 'modifier' => '/rdv/' . $id . '/modifier',
-                'patient' => $rdv->getPatient(),
+                'patientId' => $rdv->getPatientID(),
             ];
 
             return JsonRenderer::render($rs, 200, $responseData);
