@@ -29,7 +29,7 @@ class JwtAuthProvider extends JWTManager implements AuthProviderInterface {
         $user = $this->authService->authenticate($credentials);
 
         if (!$user) {
-            throw new Exception('Invalid credentials');
+            throw new \Exception('Invalid credentials');
         }
 
         // Crée les tokens JWT
@@ -65,7 +65,7 @@ class JwtAuthProvider extends JWTManager implements AuthProviderInterface {
         $user = $this->authService->getUserById($userId);
 
         if (!$user) {
-            throw new Exception('Invalid token');
+            throw new \Exception('Invalid token');
         }
 
         // Générer un nouveau Access Token
