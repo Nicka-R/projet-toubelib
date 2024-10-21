@@ -12,4 +12,5 @@ interface RDVRepositoryInterface
     
     public function save(RendezVous $rdv): RDVDTO;  
     public function getRendezVousByPraticienAndDate(string $praticien_id, \DateTimeImmutable $date): array;  
+    public function getRendezVousById(string $id): RendezVous;
 }

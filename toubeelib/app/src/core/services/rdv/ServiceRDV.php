@@ -302,7 +302,7 @@ class ServiceRDV implements ServiceRDVInterface
 
     public function modifierPatient(string $id, string $patient): RDVDTO {
         try {
-            $rdv = $this->rdvRepository->getRDVById($id);
+            $rdv = $this->rdvRepository->getRendezVousById($id);
             $oldPatient = $rdv->getPatient();
 
             $rdv->setPatient($patient);
@@ -325,7 +325,7 @@ class ServiceRDV implements ServiceRDVInterface
     
     public function modifierSpecialite(string $id, string $specialite): RDVDTO {
         try {
-            $rdv = $this->rdvRepository->getRDVById($id);
+            $rdv = $this->rdvRepository->getRendezVousById($id);
     
             $praticien = $this->praticienRepository->getPraticienById($rdv->getPraticien());
 

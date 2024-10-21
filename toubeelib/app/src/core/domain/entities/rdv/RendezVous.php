@@ -34,7 +34,6 @@ class RendezVous extends Entity
         $this->patientID = $patient;
         $this->specialiteID = $specialiteID;
         $this->date = $date;
-        
     }
 
     /*
@@ -71,8 +70,11 @@ class RendezVous extends Entity
         $this->specialiteID = $specialiteID;
     }
 
-    public function getId(): string
+    public function getId(): ?string
     {
+        if (empty($this->id)) {
+            return "";
+        }
         return $this->id;
     }
 
@@ -108,6 +110,9 @@ class RendezVous extends Entity
 
     public function getSpecialite(): ?Specialite
     {
+        if (empty($this->specialite)) {
+            return null;
+        }
         return $this->specialite;
     }
 
