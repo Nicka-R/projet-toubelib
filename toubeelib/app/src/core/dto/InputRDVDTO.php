@@ -11,7 +11,8 @@ class InputRDVDTO {
     public string $praticien_id;
     public string $specialite_id;
     public string $patient_id;
-
+    public string $id;
+    
     public function __construct(
         string $praticien_id,
         string $patient_id,

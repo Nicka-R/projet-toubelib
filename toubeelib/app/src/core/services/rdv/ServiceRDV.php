@@ -92,7 +92,7 @@ class ServiceRDV implements ServiceRDVInterface
             $rendezVous->setType($inputRDV->type);
             $rendezVous->setNewPatient($inputRDV->newPatient);
             $rendezVous->setId($inputRDV->id);
-
+            $rendezVous->setPatientID($inputRDV->patient_id);
             $rendezVous->setSpecialite($specialiteDTO->toEntity());
             $this->rdvRepository->save($rendezVous);
             $this->logger->info('Rendez-vous créé', ['id' => $rendezVous->getId()]);

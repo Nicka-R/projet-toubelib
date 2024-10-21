@@ -15,7 +15,7 @@ try {
         'p1', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-10 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-10 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -29,7 +29,7 @@ try {
         'p3', // praticien_id
         'pa1', // patient_id
         'C', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-25 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-25 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -46,7 +46,7 @@ try {
         'p3', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id qui ne correspond pas à celle du praticien
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-11-15 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-11-15 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -62,7 +62,7 @@ try {
         'p1', // praticien_id
         'pa2', // patient_id
         'A', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-11 09:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -81,7 +81,7 @@ try {
         'p1', // praticien_id
         'pa1', // patient_id
         'A', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:30'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-11 09:30'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -98,7 +98,7 @@ try {
         'p1', // praticien_id
         'pa2', // patient_id
         'A', // specialite_id
-        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 11:00'), // date
+        \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-11 11:00'), // date
         true, // newPatient
         false, // type
         false, // isConfirmed
@@ -109,12 +109,12 @@ try {
     print_r($rdv6);
 
     // lister les rendez-vous d'un praticien à une date donnée
-    $rdvs = $ServiceRDV->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), 2);
+    $rdvs = $ServiceRDV->listerRendezVousPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-11 09:00'), 2);
     foreach($rdvs as $rdv){
         print_r($rdv);
     }
 
-    $dispos = $ServiceRDV->listerDisposPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2024-10-13 16:00'));
+    $dispos = $ServiceRDV->listerDisposPraticien('p1', \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-11 09:00'), \DateTimeImmutable::createFromFormat('Y-m-d H:i','2027-10-13 16:00'));
     foreach($dispos as $dispo){
         print_r($dispo);
     }    

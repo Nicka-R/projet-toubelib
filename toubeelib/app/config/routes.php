@@ -10,6 +10,7 @@ use toubeelib\application\actions\HomeAction;
 use toubeelib\application\actions\RDVbyIDAction;
 use toubeelib\application\actions\ModifierRDVAction;
 use toubeelib\application\actions\PraticienbyIDAction;
+use toubeelib\application\actions\CreerRDVAction;
 use toubeelib\application\actions\AuthAction;
 use app\middlewares\cors\Cors;
 
@@ -18,13 +19,19 @@ return function(App $app): App {
 
     // Public routes
     $app->get('/', HomeAction::class)->setName('home');
+
+    // Authorization
     $app->post('/auth/signin', AuthAction::class)->setName('authSignin');
+
+    // Rendez-vous
+    $app->post('/rdvs/new', CreerRDVAction::class)->setName('newRDV');
     $app->get('/rdvs/{id}', RDVbyIDAction::class)->setName('rdvById');
     $app->patch('/rdvs/{id}/modifier', ModifierRDVAction::class)->setName('modifierRDV');
 
-    $app->get('/praticiens/{id}', PraticienbyIDAction::class)->setName('praticienById')
-                                                            ->add(CheckJwtToken::class);
+    // Practiciens
+    $app->get('/praticiens/{id}', PraticienbyIDAction::class)->setName('praticienById')->add(CheckJwtToken::class);
 
+                                                            
     $app->options('/{routes:.+}', function (Request $request, Response $response) {
         return $response;
     });

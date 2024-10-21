@@ -48,7 +48,7 @@ class ServicePraticien implements ServicePraticienInterface
             $praticien = $this->praticienRepository->getPraticienById($id);
             return new PraticienDTO($praticien);
         } catch(RepositoryEntityNotFoundException $e) {
-            throw new ServicePraticienNotFoundException($e->getMessage());
+            throw new ServicePraticienNotFoundException("Praticien introuvable");
         }
     }
 

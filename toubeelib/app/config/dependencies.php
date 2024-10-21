@@ -15,6 +15,7 @@ use toubeelib\core\services\auth\AuthService;
 use toubeelib\core\services\auth\AuthServiceInterface;
 use app\providers\auth\JwtAuthProvider;
 use toubeelib\infrastructure\PDO\PdoUserRepository;
+use toubeelib\infrastructure\PDO\PdoRDVRepository;
 use app\middlewares\cors\Cors;
 use app\middlewares\auth\CheckJwtToken;
 use Slim\App;
@@ -55,10 +56,16 @@ return [
     // Utilisation d'une instance ServiceRDV à chaque utilisation d'une ServiceRDVInterface
     ServiceRDVInterface::class => function (ContainerInterface $container) {
         $rdvRepository = $container->get(RDVRepositoryInterface::class);
-        $praticienRepository = $container->get(PraticienRepositoryInterface::class);
+        $servicePracticien = $container->get(ServicePraticienInterface::class);
+        
         $logger = $container->get(LoggerInterface::class);
-        return new ServiceRDV($rdvRepository, $praticienRepository,$logger);
+        return new ServiceRDV($rdvRepository, $servicePracticien,$logger);
     }, 
+
+    RDVRepositoryInterface::class => function(ContainerInterface $container) {
+        $pdo = $container->get('praticien.pdo');
+        return new PdoRDVRepository($pdo);
+    },
 
     // Utilisation d'une instance ServicePraticien à chaque utilisation d'une ServicePraticienInterface
     ServicePraticienInterface::class => function (ContainerInterface $container) {
