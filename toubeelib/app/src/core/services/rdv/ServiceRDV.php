@@ -194,15 +194,7 @@ class ServiceRDV implements ServiceRDVInterface
         $premier_rdv = $dateDebut->modify('08:00');
         $dernier_rdv = $dateDebut->modify('+'. $nbJours-1 . ' days')->modify('23:59');
         $liste_rdv = $this->rdvRepository->getRendezVousPraticien($praticien_id, $premier_rdv, $dernier_rdv);
-        return array_map(function($rdv){
-            $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-            $rdv_dto = $rdv->toDTO($praticienDTO);
-            
-            $specialiteDTO = $this->servicePraticien->getSpecialiteById($rdv->getSpecialiteID());
-            $rdv_dto->setPraticien($praticienDTO);
-            $rdv_dto->setSpecialite($specialiteDTO);
-            return $rdv_dto;
-        }, $liste_rdv);
+        return $liste_rdv;
 
     }
 
@@ -403,14 +395,9 @@ class ServiceRDV implements ServiceRDVInterface
     public function getRDVbyPatientID(string $id): array {
         try {
             $rdvs = $this->rdvRepository->getRendezVousByPatientID($id);
-            $rdvsDTO = [];
-            foreach ($rdvs as $rdv) {
-                $praticienDTO = $this->servicePraticien->getPraticienById($rdv->getPraticienID());
-                $rdvsDTO[] = new RDVDTO($rdv, $praticienDTO);
-            }
-            return $rdvsDTO;
+            return $rdvs;
         } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServiceRDVInvalidDataException('Invalid Patient ID');
+            throw new ServiceRDVInvalidDataException('Invalid Patient ID' . $e->getMessage());
         }
     }
 }

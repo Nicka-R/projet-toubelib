@@ -15,4 +15,5 @@ interface RDVRepositoryInterface
     public function getRendezVousById(string $id): RendezVous;
     public function update(RendezVous $rdv): RDVDTO;
     public function getRendezVousByPatientID(string $patient_id): array;
+    public function getRendezVousPraticien(string $praticien_id, \DateTimeInterface $dateDebut, \DateTimeInterface $dateFin): array;
 }
