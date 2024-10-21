@@ -35,23 +35,23 @@ class PdoRDVRepository implements RDVRepositoryInterface
     }
         }
 
-        public function save(RendezVous $rdv): RDVDTO {
-            try {
-                $formattedDate = $rdv->getDate()->format('Y-m-d H:i:s');
-                
-                $stmt = $this->pdo->prepare('INSERT INTO rdv (id, date_heure, praticien_id, patient_id) VALUES (:id, :date, :praticien_id, :patient_id)');
-                $stmt->execute([
-                    'id' => $rdv->getID(),
-                    'date' => $formattedDate,
-                    'praticien_id' => $rdv->getPraticienID(),
-                    'patient_id' => $rdv->getPatientID()
-                ]);
-                
-                return new RDVDTO($rdv);
-            } catch (PDOException $e) {
-                throw new RepositoryEntityNotFoundException($e->getMessage());
-            }
-        }        
+    public function save(RendezVous $rdv): RDVDTO {
+        try {
+            $formattedDate = $rdv->getDate()->format('Y-m-d H:i:s');
+            
+            $stmt = $this->pdo->prepare('INSERT INTO rdv (id, date_heure, praticien_id, patient_id) VALUES (:id, :date, :praticien_id, :patient_id)');
+            $stmt->execute([
+                'id' => $rdv->getID(),
+                'date' => $formattedDate,
+                'praticien_id' => $rdv->getPraticienID(),
+                'patient_id' => $rdv->getPatientID()
+            ]);
+            
+            return new RDVDTO($rdv);
+        } catch (PDOException $e) {
+            throw new RepositoryEntityNotFoundException($e->getMessage());
+        }
+    }        
     
     public function getRendezVousByPraticienAndDate(string $praticien_id, \DateTimeImmutable $date): array {
         try {
@@ -78,7 +78,27 @@ class PdoRDVRepository implements RDVRepositoryInterface
             if (!$row) {
                 throw new PDOException();
             }
-            return new RendezVous($row['praticien_id'], $row['patient_id'], "prout", new \DateTimeImmutable($row['date_heure']));
+            $rdv = new RendezVous($row['praticien_id'], $row['patient_id'], "fake_speciality_id", new \DateTimeImmutable($row['date_heure']));
+            $rdv->setID($row['id']);
+            return $rdv;
+        } catch (PDOException $e) {
+            throw new RepositoryEntityNotFoundException($e->getMessage());
+        }
+    }
+
+    public function update(RendezVous $rdv): RDVDTO {
+        try {
+            $formattedDate = $rdv->getDate()->format('Y-m-d H:i:s');
+            
+            $stmt = $this->pdo->prepare('UPDATE rdv SET date_heure = :date, praticien_id = :praticien_id, patient_id = :patient_id WHERE id = :id');
+            $stmt->execute([
+                'id' => $rdv->getID(),
+                'date' => $formattedDate,
+                'praticien_id' => $rdv->getPraticienID(),
+                'patient_id' => $rdv->getPatientID()
+            ]);
+            
+            return new RDVDTO($rdv);
         } catch (PDOException $e) {
             throw new RepositoryEntityNotFoundException($e->getMessage());
         }

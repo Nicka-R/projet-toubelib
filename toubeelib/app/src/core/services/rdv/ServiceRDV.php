@@ -303,23 +303,23 @@ class ServiceRDV implements ServiceRDVInterface
     public function modifierPatient(string $id, string $patient): RDVDTO {
         try {
             $rdv = $this->rdvRepository->getRendezVousById($id);
-            $oldPatient = $rdv->getPatient();
+            $oldPatientID = $rdv->getPatientID();
 
-            $rdv->setPatient($patient);
+            $rdv->setPatientID($patient);
 
-            $this->logger->info("Avant modification - Patient actuel: {$oldPatient}, ID RDV: {$id}");
+            $this->logger->info("Avant modification - Patient actuel: {$oldPatientID}, ID RDV: {$id}");
             
             
-            $this->rdvRepository->update($rdv);
+            $updatedRdv = $this->rdvRepository->update($rdv);
 
-            $newPatient = $rdv->getPatient();
+            $newPatientID = $rdv->getPatientID();
 
-            $this->logger->info("Après modification - Nouveau pa: {$newPatient}, ID RDV: {$id}");
+            $this->logger->info("Après modification - Nouveau patient: {$newPatientID}, ID RDV: {$id}");
     
-            return $rdv->toDTO();
+            return $updatedRdv;
         } catch (RepositoryEntityNotFoundException $e) {
-            $this->logger->error("RDV non trouvé pour l'ID: {$id}");
-            throw new ServiceRDVNotFoundException('ID du RDV non trouvé');
+            $this->logger->error("SQL Error pour l'ID: {$id}");
+            throw new ServiceRDVNotFoundException($e->getMessage());
         }
     }
     
