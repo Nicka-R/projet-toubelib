@@ -20,12 +20,12 @@ class RDVbyIDAction extends AbstractAction
         $id = (string) $args['id'];
 
         try {
-            $rdvDTO = $this->serviceRDV->getRDVByID($id);
+            $rdvDTO = $this->serviceRDV->getRendezVousById($id);
             $responseData = [
                 'self' => "/rdvs/{$rdvDTO->getId()}",
-                'praticien' => $rdvDTO->getPraticien(),
-                'patient' => $rdvDTO->getPatient(),
-                'creneau' => $rdvDTO->getCreneau(),
+                'praticienId' => $rdvDTO->getPraticienID(),
+                'patientId' => $rdvDTO->getPatientID(),
+                'creneau' => $rdvDTO->getDate(),
             ];
             return JsonRenderer::render($rs, 200, $responseData);
 

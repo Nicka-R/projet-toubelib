@@ -2,59 +2,97 @@
 
 namespace toubeelib\core\dto;
 
-use DateTimeImmutable;
 use toubeelib\core\domain\entities\rdv\RendezVous;
-use toubeelib\core\dto\DTO;
+use toubeelib\core\domain\entities\praticien\Praticien;
+use toubeelib\core\dto\PraticienDTO;
+use toubeelib\core\dto\SpecialiteDTO; 
 
-class RDVDTO extends DTO
-{   
-    protected string $ID;
-    protected string $praticien;
-    protected string $patient;
-    protected string $specialite;
-    protected string $creneau;
-    // protected string $type;
-    // protected string $etatConsult;
-    // protected string $etatPatient; 
-    // protected string $status; 
-    // protected string $creneau;
+class RDVDTO
+{
+    private string $id;
+    private string $praticienID;
+    private string $patientID;
+    private \DateTimeImmutable $date;
+    private bool $type;
+    private bool $newPatient;
+    private string $status;
+    private string $specialiteID;
+    private string $specialiteLabel;
 
-    public function __construct(RendezVous $r)
+    public function __construct(RendezVous $rendezVous)
     {
-        $this->ID = $r->getID();
-        $this->praticien = $r->idPraticien;
-        $this->patient = $r->idPatient;
-        $this->specialite = $r->specialite_label;
-        $this->creneau = $r->creneau ? $r->creneau->format('Y-m-d H:i:s') : '';
-        
+        $this->id = $rendezVous->getID();
+        $this->praticienID = $rendezVous->getPraticienID();
+        $this->patientID = $rendezVous->getPatientID();
+        $this->specialiteID = $rendezVous->getSpecialiteID();
+        $this->date = $rendezVous->getDate();
+        $this->status = $rendezVous->getStatus();
+        $this->type = $rendezVous->getType();
+        $this->newPatient = $rendezVous->isNewPatient();
+        $this->specialiteLabel = $rendezVous->getSpecialite() ? $rendezVous->getSpecialite()->getLabel() : 'Pas de Specialite';
     }
 
-    public function getID(): string
-    {
-        return $this->ID;
+    /*
+     * Getters et setters
+     */
+    public function getId(): string{
+        return $this->id;
     }
 
-    public function getPraticien(): string
+    public function getPraticienID(): string 
+    { 
+        return $this->praticienID; 
+    }
+    public function getPatientID(): string
+    { 
+        return $this->patientID;
+    }
+    public function getDate(): \DateTimeImmutable
     {
-        return $this->praticien;
+        return $this->date;
     }
 
-    public function getPatient(): string
-    {
-        return $this->patient;
+    public function getSpecialiteID(): string 
+    { 
+        return $this->specialiteID;
+    } 
+
+    public function getStatus(): string 
+    { 
+        return $this->status; 
+    }
+    
+    public function getType(): bool 
+    { 
+        return $this->type; 
     }
 
-    public function getSpecialite(): string
-    {
-        return $this->specialite;
+    public function isNewPatient(): bool 
+    { 
+        return $this->newPatient; 
     }
 
-    public function getCreneau(): string
+    public function setSpecialite(SpecialiteDTO $spe): void
     {
-        return $this->creneau;
+        $this->specialiteLabel = $spe->getLabel();
     }
 
+    public function setSpecialiteID(string $specialiteID): void
+    {
+        $this->specialiteID = $specialiteID;
+    }
 
+    public function setPraticien(PraticienDTO $praticien): void
+    {
+        $this->praticienID = $praticien->getID();
+    }
 
-
+    public function toEntity(): RendezVous
+    {
+        $rdv = new RendezVous($this->praticienID, $this->patientID, $this->specialiteLabel, $this->date);
+        $rdv->setType($this->type);
+        $rdv->setNewPatient($this->newPatient);
+        $rdv->setStatus($this->status);
+        return $rdv;
+    }
 }

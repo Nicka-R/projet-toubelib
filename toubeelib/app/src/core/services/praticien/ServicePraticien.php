@@ -11,9 +11,7 @@ use toubeelib\core\repositoryInterfaces\RepositoryEntityNotFoundException;
 
 class ServicePraticien implements ServicePraticienInterface
 {
-    private PraticienRepositoryInterface $praticienRepository;
-
-    private const JOURS_DE_CONSULTATION = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];    
+    private PraticienRepositoryInterface $praticienRepository;  
 
 
     public function __construct(PraticienRepositoryInterface $praticienRepository)
@@ -28,15 +26,14 @@ class ServicePraticien implements ServicePraticienInterface
      */
     public function createPraticien(InputPraticienDTO $p): PraticienDTO
     {
-        $praticien = new Praticien($p->nom, $p->prenom, $p->adresse, $p->tel, $p->specialite);
+        $praticien = new Praticien($p->nom, $p->prenom, $p->adresse, $p->tel);
         try {
             $specialite = $this->praticienRepository->getSpecialiteById($p->specialite);
             $praticien->setSpecialite($specialite);
-        } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServicePraticienInvalidDataException("Specialite {$p->specialite} not found");
+            $this->praticienRepository->save($praticien);
+        } catch(RepositoryEntityNotFoundException $e) {
+            throw new ServicePraticienInvalidDataException('Specialite introuvable');
         }
-        
-        $this->praticienRepository->save($praticien);
         return new PraticienDTO($praticien);
     }
 
@@ -50,8 +47,8 @@ class ServicePraticien implements ServicePraticienInterface
         try {
             $praticien = $this->praticienRepository->getPraticienById($id);
             return new PraticienDTO($praticien);
-        } catch (RepositoryEntityNotFoundException $e) {
-            throw new ServicePraticienInvalidDataException('Invalid Praticien ID');
+        } catch(RepositoryEntityNotFoundException $e) {
+            throw new ServicePraticienNotFoundException("Praticien introuvable");
         }
     }
 

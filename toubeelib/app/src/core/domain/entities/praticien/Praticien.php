@@ -4,9 +4,11 @@ namespace toubeelib\core\domain\entities\praticien;
 
 use toubeelib\core\domain\entities\Entity;
 use toubeelib\core\dto\PraticienDTO;
+use Ramsey\Uuid\Uuid; 
 
 class Praticien extends Entity
 {
+    protected string $id;
     protected string $nom;
     protected string $prenom;
     protected string $adresse;

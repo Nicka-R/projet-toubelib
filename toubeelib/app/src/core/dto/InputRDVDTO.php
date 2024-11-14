@@ -2,23 +2,44 @@
 
 namespace toubeelib\core\dto;
 
-class InputRDVDTO extends DTO
-{
-    // protected string $type;
-    // protected string $etatConsult;
-    // protected string $etatPatient; 
-    // protected string $status; 
+class InputRDVDTO {
+    public bool $newPatient;
+    public bool $type;
+    public bool $isConfirmed;
+    public bool $isPaid;
+    public \DateTimeImmutable $date;
+    public string $praticien_id;
+    public string $specialite_id;
+    public string $patient_id;
+    public string $id;
     
-    protected string $praticien; // UUID du praticien
-    protected string $patient; // UUID du patient
-    protected string $specialite; // UUID de la spécialité
-    protected string $creneau;
+    public function __construct(
+        string $praticien_id,
+        string $patient_id,
+        string $specialite_id,
+        \DateTimeImmutable $date,
+        bool $newPatient,
+        bool $type,
+        bool $isConfirmed,
+        bool $isPaid,
+        
+    ) {
+        $this->validateDate($date);
+        $this->newPatient = $newPatient;
+        $this->type = $type;
+        $this->isConfirmed = $isConfirmed;
+        $this->isPaid = $isPaid;
+        $this->date = $date;
+        $this->praticien_id = $praticien_id;
+        $this->specialite_id = $specialite_id;
+        $this->patient_id = $patient_id;
+    }
 
-
-   public function _construct(string $praticien, string $patient, string $specialite,string $creneau) {
-    $this->praticien = $praticien;   
-    $this->patient = $patient;
-    $this->specialite = $specialite;
-    $this->creneau = $creneau;   
-   }
+    private function validateDate(\DateTimeImmutable $date): void
+    {
+        $now = new \DateTimeImmutable();
+        if ($date <= $now) {
+            throw new \Exception('La date du rendez-vous doit être supérieure à la date actuelle.');
+        }
+    } 
 }

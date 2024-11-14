@@ -48,20 +48,6 @@ class ArrayRdvRepository implements RDVRepositoryInterface
         return $rdvs;
     }
 
-    public function save(RendezVous $rdv): RDVDTO{
-        $id = Uuid::uuid4()->toString();
-        $rdv->setID($id);
-        $this->rdvs[$id] = $rdv;
-        return $rdv->toDTO();
-    }
-
-    public function update(RendezVous $rdv): RDVDTO {        
-        if (isset($this->rdvs[$rdv->getID()])) {            
-            $this->rdvs[$rdv->getID()] = $rdv;
-            return $rdv->toDTO();
-        }
-    }
-
     public function getRendezVousPraticien(string $praticien_id, \DateTimeImmutable $dateDebut, \DateTimeImmutable $dateFin): array
     {
         $rdvs = [];
@@ -71,6 +57,20 @@ class ArrayRdvRepository implements RDVRepositoryInterface
             }
         }
         return $rdvs;
+    }
+
+    public function save(RendezVous $rdv): string{
+        $id = Uuid::uuid4()->toString();
+        $rdv->setID($id);
+        $this->rdvs[$id] = $rdv;
+        return $id;
+    }
+
+    public function update(RendezVous $rdv): string {        
+        if (isset($this->rdvs[$rdv->getID()])) {            
+            $this->rdvs[$rdv->getID()] = $rdv;
+            return $rdv->getId();
+        }
     }
   
 }

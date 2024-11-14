@@ -3,7 +3,7 @@ namespace toubeelib\core\domain\entities\rdv;
 
 use toubeelib\core\domain\entities\Entity;
 use toubeelib\core\domain\entities\praticien\Specialite;
-use toubeelib\core\dto\RendezVousDTO;
+use toubeelib\core\dto\RDVDTO;
 use toubeelib\core\dto\PraticienDTO;
 class RendezVous extends Entity
 {
@@ -24,16 +24,16 @@ class RendezVous extends Entity
     protected int $status= self::RDV_PREVU; // OK si le patient a honoré le rendez-vous, KO si ce n'est pas le cas, EN ATTENTE si le rendez-vous n'a pas encore eu lieu
     protected string $specialiteID;
     protected int $duree = 30; 
+    protected Specialite $specialite;
 
     // protected ?Specialite $specialite = null;
 
-    public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date) // bool $type, bool $newPatient)
+    public function __construct(string $praticien, string $patient, string $specialiteID, \DateTimeImmutable $date)
     {
         $this->praticienID = $praticien;
         $this->patientID = $patient;
         $this->specialiteID = $specialiteID;
         $this->date = $date;
-        
     }
 
     /*
@@ -70,8 +70,11 @@ class RendezVous extends Entity
         $this->specialiteID = $specialiteID;
     }
 
-    public function getId(): string
+    public function getId(): ?string
     {
+        if (empty($this->id)) {
+            return "";
+        }
         return $this->id;
     }
 
@@ -107,6 +110,9 @@ class RendezVous extends Entity
 
     public function getSpecialite(): ?Specialite
     {
+        if (empty($this->specialite)) {
+            return null;
+        }
         return $this->specialite;
     }
 
@@ -150,8 +156,8 @@ class RendezVous extends Entity
         return $this->status === self::RDV_ANNULE;
     }
 
-    public function toDTO(PraticienDto $praticienDTO) : RendezVousDTO
+    public function toDTO(PraticienDTO $praticienDTO) : RDVDTO
     {
-        return new RendezVousDTO($this, $praticienDTO);	
+        return new RDVDTO($this, $praticienDTO);	
     }
 }

@@ -18,7 +18,8 @@
   },
   "autoload": {
     "psr-4" : {
-      "toubeelib\\" : "./src"
+      "toubeelib\\" : "./src",
+      "app\\" : "./"
     }
   }
 }

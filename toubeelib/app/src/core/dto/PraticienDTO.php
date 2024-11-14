@@ -34,29 +34,4 @@ class PraticienDTO extends DTO
     {
         return $this->ID;
     }
-
-    public function getNom(): string
-    {
-        return $this->nom;
-    }
-
-    public function getPrenom(): string
-    {
-        return $this->prenom;
-    }
-
-    public function getAdresse(): string
-    {
-        return $this->adresse;
-    }
-
-    public function getTel(): string
-    {
-        return $this->tel;
-    }
-
-    public function getSpecialiteLabel(): string
-    {
-        return $this->specialite_label;
-    }
 }
